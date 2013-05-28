@@ -58,6 +58,8 @@ run_exploit(void)
 
   ret = run_obtain_root_privilege(NULL);
 
+  *ptmx_fsync_address = NULL;
+
   backdoor_close_mmap();
   return ret;
 }
