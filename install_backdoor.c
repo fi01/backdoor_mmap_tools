@@ -28,10 +28,10 @@ typedef struct _supported_device {
 } supported_device;
 
 static supported_device supported_devices[] = {
-  { "IS17SH", "01.00.04",    0x00208000, 0xc0212b70 },  // not tested yet
+  { "IS17SH", "01.00.04",    0x00208000, 0xc0212b70 },
   { "SH-04E", "01.00.02",    0x80208000, 0xc00f10d4 },  // not tested yet
   { "SOL21",  "9.1.D.0.395", 0x80208000, 0xc011aeec },
-  { "HTL21",  "JRO03C",      0x80608000, 0xc010b728 },  // not tested yet
+  { "HTL21",  "JRO03C",      0x80608000, 0xc010b728 },
   { "ISW13F", "V69R51I",     0x10008000, 0xc01294b0 },  // not tested yet
 };
 
