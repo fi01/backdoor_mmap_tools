@@ -53,3 +53,33 @@ kallsyms_get_symbol_address(const char *symbol_name)
   return NULL;
 }
 
+char *
+kallsyms_get_symbol_by_address(void *symbol_address)
+{
+  FILE *fp;
+  char function[BUFSIZ];
+  char symbol;
+  void *address;
+  int ret;
+
+  fp = fopen("/proc/kallsyms", "r");
+  if (!fp) {
+    printf("Failed to open /proc/kallsyms due to %s.", strerror(errno));
+    return 0;
+  }
+
+  while(!feof(fp)) {
+    ret = fscanf(fp, "%p %c %s", &address, &symbol, function);
+    if (ret != 3) {
+      break;
+    }
+
+    if (symbol_address == address) {
+      fclose(fp);
+      return strdup(function);
+    }
+  }
+  fclose(fp);
+
+  return NULL;
+}

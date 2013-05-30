@@ -20,8 +20,9 @@
 
 #include <stdbool.h>
 
-bool  kallsyms_exist(void);
-void *kallsyms_get_symbol_address(const char *symbol_name);
+extern bool  kallsyms_exist(void);
+extern void *kallsyms_get_symbol_address(const char *symbol_name);
+extern char *kallsyms_get_symbol_by_address(void *symbol_address);
 
 #endif /* KALLSYMS_H */
 /*
