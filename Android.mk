@@ -3,6 +3,7 @@ LOCAL_PATH := $(call my-dir)
 include $(CLEAR_VARS)
 
 LOCAL_SRC_FILES := \
+  detect_device.c \
   cred.c \
   kallsyms.c \
   main.c \
@@ -19,6 +20,7 @@ include $(BUILD_EXECUTABLE)
 include $(CLEAR_VARS)
 
 LOCAL_SRC_FILES := \
+  detect_device.c \
   install_backdoor.c \
   backdoor_mmap.c \
   kallsyms.c \

