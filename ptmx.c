@@ -19,6 +19,7 @@ static supported_device supported_devices[] = {
 
   // ptmx_fops is 0xc09fc5fc but it doesn't work (kernel 2.6.39.4)
   { DEV_ISW13F_V69R51I,     0xc09fc5fc + 4 },
+  { DEV_F10D_V21R48A,       0xc09a60dc + 4 },
 
   { DEV_IS17SH_01_00_04,    0xc0edae90 },
   { DEV_SONYTABS_RELEASE5A, 0xc06e0d18 },

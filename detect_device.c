@@ -15,6 +15,7 @@ static supported_device supported_devices[] = {
   { DEV_ISW12K_010_0_3000,  "URBANO PROGRESSO", "010.0.3000",         NULL },
   { DEV_SCL21_KDALJD,       "SCL21",            "IMM76D.SCL21KDALJD", NULL },
   { DEV_ISW13F_V69R51I,     "ISW13F",           "V69R51I",            NULL },
+  { DEV_F10D_V21R48A,       "F-10D",            "V21R48A",            NULL },
   { DEV_SONYTABS_RELEASE5A, "Sony Tablet S",    "TISU0143",           NULL },
   { DEV_SONYTABP_RELEASE5A, "Sony Tablet P",    "TISU0144",           NULL },
   { DEV_SH04E_01_00_02,     "SH-04E",           "01.00.02",           NULL },
