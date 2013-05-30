@@ -33,7 +33,6 @@ static supported_device supported_devices[] = {
   { DEV_SOL21_9_1_D_0_395,  0x80208000, 0xc011aeec },
   { DEV_HTL21_JRO03C,       0x80608000, 0xc010b728 },
   { DEV_ISW13F_V69R51I,     0x80008000, 0xc01294b0 },  // not tested yet
-  { DEV_L06D_V10k,          0x40208000, 0 },
 };
 
 static int n_supported_devices = sizeof(supported_devices) / sizeof(supported_devices[0]);
@@ -42,6 +41,68 @@ static unsigned long int kernel_phys_offset;
 static void *(*vmalloc_exec)(unsigned long size);
 static int (*remap_pfn_range)(struct vm_area_struct *, unsigned long addr,
                               unsigned long pfn, unsigned long size, pgprot_t);
+
+/*
+
+/proc/iomem for IS17SH:
+
+  ...
+00200000-03dfffff : System RAM
+  00300000-00b381ef : Kernel text
+  00c00000-0120cd77 : Kernel data
+  ...
+
+Actual kernel text offset is 0x00208000, this is from boot image header.
+
+*/
+
+static unsigned long int
+find_kernel_text_from_iomem(void)
+{
+  unsigned long int kernel_ram;
+  FILE *fp;
+
+  fp = fopen("/proc/iomem", "rt");
+  if (!fp) {
+    return 0;
+  }
+
+  kernel_ram = 0;
+
+  while (!feof(fp)) {
+    unsigned long int start, end;
+    char buf[256];
+    char *p;
+    int len;
+    char colon[256], name1[256], name2[256];
+    int n;
+
+    p = fgets(buf, sizeof (buf) - 1, fp);
+    if (p == NULL)
+      break;
+
+    if (sscanf(buf, "%lx-%lx %s %s %s", &start, &end, colon, name1, name2) != 5
+        || strcmp(colon, ":")) {
+      continue;
+    }
+
+    if (!strcasecmp(name1, "System") && !strcasecmp(name2, "RAM")) {
+      kernel_ram = start;
+      continue;
+    }
+
+    if (strcasecmp(name1, "Kernel") || strcasecmp(name2, "text")) {
+      kernel_ram = 0;
+      continue;
+    }
+
+    fclose(fp);
+    return kernel_ram + 0x00008000;
+  }
+
+  fclose(fp);
+  return 0;
+}
 
 static bool
 setup_variables(void)
@@ -56,6 +117,15 @@ setup_variables(void)
     if (supported_devices[i].device_id == device_id) {
       kernel_phys_offset = supported_devices[i].kernel_phys_offset;
       vmalloc_exec = (void *)supported_devices[i].vmalloc_exec_address;
+    }
+  }
+
+  if (!kernel_phys_offset) {
+    kernel_phys_offset = find_kernel_text_from_iomem();
+    if (kernel_phys_offset) {
+      printf("Kernel physical offset is detected as 0x%08lx from /proc/iomem.\n"
+             "If it crashed with this address, setup correct address\n",
+             kernel_phys_offset);
     }
   }
 
