@@ -22,8 +22,8 @@ static supported_device supported_devices[] = {
   { DEV_F10D_V21R48A,       0xc09a60dc + 4 },
 
   { DEV_IS17SH_01_00_04,    0xc0edae90 },
-  { DEV_SONYTABS_RELEASE5A, 0xc06e0d18 },
-  { DEV_SONYTABP_RELEASE5A, 0xc06e2f20 },
+  { DEV_SONYTABS_RELEASE5A, 0xc06e4d18 },
+  { DEV_SONYTABP_RELEASE5A, 0xc06e6da0 },
   { DEV_SH04E_01_00_02,     0xc0eed190 },
   { DEV_SOL21_9_1_D_0_395,  0xc0d030c8 },
   { DEV_HTL21_JRO03C,       0xc0d1d944 },
