@@ -38,6 +38,7 @@ static supported_device supported_devices[] = {
   { DEV_L06D_V10k,          0xc12f00e8 },
   { DEV_L01D_V20d,          0xc1140768 },
   { DEV_L02E_V10c,          0xc0c61038 },
+  { DEV_L02E_V10e,          0xc0c61038 },
 };
 
 static int n_supported_devices = sizeof(supported_devices) / sizeof(supported_devices[0]);

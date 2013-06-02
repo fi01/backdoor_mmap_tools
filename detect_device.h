@@ -16,6 +16,7 @@ enum {
   DEV_SO05D_7_0_D_1_137,
   DEV_L01D_V20d,
   DEV_L02E_V10c,
+  DEV_L02E_V10e,
 };
 
 extern int detect_device(void);
