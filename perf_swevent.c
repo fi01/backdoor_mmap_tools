@@ -37,6 +37,7 @@ static supported_device supported_devices[] = {
   { DEVICE_L06D_V10k,               0xc12f00e8 },
   { DEVICE_SC04E_OMUAMDI,           0xc11489d4 },
   { DEVICE_SH04E_01_00_02,          0xc0ed41ec },
+  { DEVICE_SH04E_01_00_03,          0xc0ed41ec },
   { DEVICE_SOL21_9_1_D_0_395,       0xc0cedfb4 },
   { DEVICE_SONYTABLET_S_RELEASE5A,  0xc06db714 },
   { DEVICE_SONYTABLET_P_RELEASE5A,  0xc06dd794 },
