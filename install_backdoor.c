@@ -6,7 +6,7 @@
 #include <fcntl.h>
 #define _LARGEFILE64_SOURCE
 
-#include "detect_device.h"
+#include "device_database/device_database.h"
 #include "perf_swevent.h"
 #include "acdb.h"
 #include "ptmx.h"
@@ -23,17 +23,17 @@
 #define sizeof_do_mmap()  sizeof (do_mmap)
 
 typedef struct _supported_device {
-  int device_id;
+  enum device_id_t device_id;
   unsigned long int kernel_phys_offset;
   unsigned long int vmalloc_exec_address;
 } supported_device;
 
 static supported_device supported_devices[] = {
-  { DEV_IS17SH_01_00_04,    0x00208000, 0xc0212b70 },
-  { DEV_SH04E_01_00_02,     0x80208000, 0xc00f10d4 },
-  { DEV_SOL21_9_1_D_0_395,  0x80208000, 0xc011aeec },
-  { DEV_HTL21_JRO03C,       0x80608000, 0xc010b728 },
-  { DEV_SC04E_OMUAMDI,      0x80208000, 0xc01206d8 },
+  { DEVICE_HTL21_JRO03C,            0x80608000, 0xc010b728 },
+  { DEVICE_IS17SH_01_00_04,         0x00208000, 0xc0212b70 },
+  { DEVICE_SH04E_01_00_02,          0x80208000, 0xc00f10d4 },
+  { DEVICE_SC04E_OMUAMDI,           0x80208000, 0xc01206d8 },
+  { DEVICE_SOL21_9_1_D_0_395,       0x80208000, 0xc011aeec },
 };
 
 static int n_supported_devices = sizeof(supported_devices) / sizeof(supported_devices[0]);
@@ -108,7 +108,7 @@ find_kernel_text_from_iomem(void)
 static bool
 setup_variables(void)
 {
-  int device_id = detect_device();
+  enum device_id_t device_id = detect_device();
   int i;
 
   kernel_phys_offset = 0;

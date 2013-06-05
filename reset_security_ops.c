@@ -11,17 +11,17 @@
 #include <sys/stat.h>
 #include <fcntl.h>
 
-#include "detect_device.h"
+#include "device_database/device_database.h"
 #include "ptmx.h"
 #include "backdoor_mmap.h"
 
 typedef struct _supported_device {
-  int device_id;
+  enum device_id_t device_id;
   unsigned long int reset_security_ops_address;
 } supported_device;
 
 static supported_device supported_devices[] = {
-  { DEV_IS17SH_01_00_04,    0xc03215b0 },
+  { DEVICE_IS17SH_01_00_04,         0xc03215b0 },
 };
 
 static int n_supported_devices = sizeof(supported_devices) / sizeof(supported_devices[0]);
@@ -31,7 +31,7 @@ static void (*reset_security_ops)(void);
 static bool
 setup_variable(void)
 {
-  int device_id = detect_device();
+  enum device_id_t device_id = detect_device();
   int i;
 
   for (i = 0; i < n_supported_devices; i++) {

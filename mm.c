@@ -3,21 +3,21 @@
 #include <string.h>
 #include <sys/system_properties.h>
 
-#include "detect_device.h"
+#include "device_database/device_database.h"
 #include "kallsyms.h"
 #include "mm.h"
 
 typedef struct _supported_device {
-  int device_id;
+  enum device_id_t device_id;
   unsigned long int remap_pfn_range_address;
 } supported_device;
 
 static supported_device supported_devices[] = {
-  { DEV_IS17SH_01_00_04,   0xc0208a34 },
-  { DEV_SH04E_01_00_02,    0xc00e458c },
-  { DEV_SOL21_9_1_D_0_395, 0xc010e33c },
-  { DEV_HTL21_JRO03C,      0xc00ff32c },
-  { DEV_SC04E_OMUAMDI,     0xc011383c },
+  { DEVICE_HTL21_JRO03C,           0xc00ff32c },
+  { DEVICE_IS17SH_01_00_04,        0xc0208a34 },
+  { DEVICE_SC04E_OMUAMDI,          0xc011383c },
+  { DEVICE_SH04E_01_00_02,         0xc00e458c },
+  { DEVICE_SOL21_9_1_D_0_395,      0xc010e33c },
 };
 
 static int n_supported_devices = sizeof(supported_devices) / sizeof(supported_devices[0]);
@@ -25,7 +25,7 @@ static int n_supported_devices = sizeof(supported_devices) / sizeof(supported_de
 unsigned long int
 _get_remap_pfn_range_address(void)
 {
-  int device_id = detect_device();
+  enum device_id_t device_id = detect_device();
   unsigned long int ret;
   int i;
 

@@ -8,7 +8,7 @@
 #include <fcntl.h>
 #include <sys/mman.h>
 
-#include "detect_device.h"
+#include "device_database/device_database.h"
 #include "cred.h"
 #include "mm.h"
 #include "perf_swevent.h"
@@ -18,17 +18,17 @@
 #include "backdoor_mmap.h"
 
 typedef struct _supported_device {
-  int device_id;
+  enum device_id_t device_id;
   unsigned long int prepare_kernel_cred_address;
   unsigned long int commit_creds_address;
 } supported_device;
 
 static supported_device supported_devices[] = {
-  { DEV_IS17SH_01_00_04,   0xc01c66a8, 0xc01c5fd8 },
-  { DEV_SH04E_01_00_02,    0xc008d86c, 0xc008d398 },
-  { DEV_SOL21_9_1_D_0_395, 0xc0098584, 0xc00980a8 },
-  { DEV_HTL21_JRO03C,      0xc00ab9d8, 0xc00ab4c4 },
-  { DEV_SC04E_OMUAMDI,     0xc0096068, 0xc0095b54 },
+  { DEVICE_HTL21_JRO03C,            0xc00ab9d8, 0xc00ab4c4 },
+  { DEVICE_IS17SH_01_00_04,         0xc01c66a8, 0xc01c5fd8 },
+  { DEVICE_SC04E_OMUAMDI,           0xc0096068, 0xc0095b54 },
+  { DEVICE_SH04E_01_00_02,          0xc008d86c, 0xc008d398 },
+  { DEVICE_SOL21_9_1_D_0_395,       0xc0098584, 0xc00980a8 },
 };
 
 static int n_supported_devices = sizeof(supported_devices) / sizeof(supported_devices[0]);
@@ -36,7 +36,7 @@ static int n_supported_devices = sizeof(supported_devices) / sizeof(supported_de
 static bool
 get_creds_functions_addresses(void **prepare_kernel_cred_address, void **commit_creds_address)
 {
-  int device_id = detect_device();
+  enum device_id_t device_id = detect_device();
   int i;
 
   for (i = 0; i < n_supported_devices; i++) {

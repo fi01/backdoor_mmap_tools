@@ -10,7 +10,7 @@
 #include <signal.h>
 #include <sys/wait.h>
 
-#include "detect_device.h"
+#include "device_database/device_database.h"
 #include "perf_swevent.h"
 
 #define PERF_SWEVENT_MAX_FILE 980
@@ -20,26 +20,26 @@
 #endif
 
 typedef struct _supported_device {
-  int device_id;
+  enum device_id_t device_id;
   unsigned long int perf_swevent_enabled_address;
 } supported_device;
 
 static supported_device supported_devices[] = {
-  { DEV_F11D_V24R40A,       0xc104cf1c },
-  { DEV_IS17SH_01_00_04,    0xc0ecbebc },
-  { DEV_ISW12K_010_0_3000,  0xc0db6244 },
-  { DEV_ISW13F_V69R51I,     0xc09de374 },
-  { DEV_F10D_V21R48A,       0xc09882f4 },
-  { DEV_SONYTABS_RELEASE5A, 0xc06db714 },
-  { DEV_SONYTABP_RELEASE5A, 0xc06dd794 },
-  { DEV_SH04E_01_00_02,     0xc0ed41ec },
-  { DEV_SOL21_9_1_D_0_395,  0xc0cedfb4 },
-  { DEV_HTL21_JRO03C,       0xc0d07a7c },
-  { DEV_SC04E_OMUAMDI,      0xc11489d4 },
-  { DEV_L06D_V10k,          0xc12f00e8 },
-  { DEV_L01D_V20d,          0xc1140768 },
-  { DEV_L02E_V10c,          0xc0c61038 },
-  { DEV_L02E_V10e,          0xc0c61038 },
+  { DEVICE_F10D_V21R48A,            0xc09882f4 },
+  { DEVICE_F11D_V24R40A,            0xc104cf1c },
+  { DEVICE_HTL21_JRO03C,            0xc0d07a7c },
+  { DEVICE_IS17SH_01_00_04,         0xc0ecbebc },
+  { DEVICE_ISW12K_010_0_3000,       0xc0db6244 },
+  { DEVICE_ISW13F_V69R51I,          0xc09de374 },
+  { DEVICE_L01D_V20d,               0xc1140768 },
+  { DEVICE_L02E_V10c,               0xc0c61038 },
+  { DEVICE_L02E_V10e,               0xc0c61038 },
+  { DEVICE_L06D_V10k,               0xc12f00e8 },
+  { DEVICE_SC04E_OMUAMDI,           0xc11489d4 },
+  { DEVICE_SH04E_01_00_02,          0xc0ed41ec },
+  { DEVICE_SOL21_9_1_D_0_395,       0xc0cedfb4 },
+  { DEVICE_SONYTABLET_S_RELEASE5A,  0xc06db714 },
+  { DEVICE_SONYTABLET_P_RELEASE5A,  0xc06dd794 },
 };
 
 static int n_supported_devices = sizeof(supported_devices) / sizeof(supported_devices[0]);
@@ -47,7 +47,7 @@ static int n_supported_devices = sizeof(supported_devices) / sizeof(supported_de
 static unsigned long int
 get_perf_swevent_enabled_address(void)
 {
-  int device_id = detect_device();
+  enum device_id_t device_id = detect_device();
   int i;
 
   for (i = 0; i < n_supported_devices; i++) {

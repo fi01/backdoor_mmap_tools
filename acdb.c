@@ -13,7 +13,7 @@
 #include <fcntl.h>
 #include <string.h>
 
-#include "detect_device.h"
+#include "device_database/device_database.h"
 #include "acdb.h"
 
 typedef struct _param_pair {
@@ -29,18 +29,18 @@ typedef struct _acdb_param {
 } acdb_param;
 
 typedef struct supported_device {
-  int device_id;
+  enum device_id_t device_id;
   const acdb_param param;
 } supported_device;
 
 static supported_device supported_devices[] = {
-  { DEV_SH04E_01_00_02,     { 0x7c, 0x88, { 0x8c, 0xc02498e0 }, { 0xac, 0xc000dd1c } } },
-  { DEV_SO04D_7_0_D_1_137,  { 0x80, 0x90, { 0x9c, 0xc0326a38 }, { 0xbc, 0xc0526964 } } },
-  { DEV_SO05D_7_0_D_1_137,  { 0x80, 0x90, { 0x9c, 0xc03265d8 }, { 0xbc, 0xc0524d84 } } },
-  { DEV_L01D_V20d,          { 0x68, 0x78, { 0x84, 0xc0417b30 }, { 0xa4, 0xc0381064 } } },
-  { DEV_L02E_V10c,          { 0x7c, 0x8c, { 0x94, 0xc02dc8c4 }, { 0xb4, 0xc018fd58 } } },
-  { DEV_L02E_V10e,          { 0x7c, 0x8c, { 0x94, 0xc02dc984 }, { 0xb4, 0xc018fd6c } } },
-  { DEV_L06D_V10k,          { 0x68, 0x78, { 0x84, 0xc041c690 }, { 0xa4, 0xc038c240 } } },
+  { DEVICE_L01D_V20d,               { 0x68, 0x78, { 0x84, 0xc0417b30 }, { 0xa4, 0xc0381064 } } },
+  { DEVICE_L02E_V10c,               { 0x7c, 0x8c, { 0x94, 0xc02dc8c4 }, { 0xb4, 0xc018fd58 } } },
+  { DEVICE_L02E_V10e,               { 0x7c, 0x8c, { 0x94, 0xc02dc984 }, { 0xb4, 0xc018fd6c } } },
+  { DEVICE_L06D_V10k,               { 0x68, 0x78, { 0x84, 0xc041c690 }, { 0xa4, 0xc038c240 } } },
+  { DEVICE_SH04E_01_00_02,          { 0x7c, 0x88, { 0x8c, 0xc02498e0 }, { 0xac, 0xc000dd1c } } },
+  { DEVICE_SO04D_7_0_D_1_137,       { 0x80, 0x90, { 0x9c, 0xc0326a38 }, { 0xbc, 0xc0526964 } } },
+  { DEVICE_SO05D_7_0_D_1_137,       { 0x80, 0x90, { 0x9c, 0xc03265d8 }, { 0xbc, 0xc0524d84 } } },
 };
 
 static int n_supported_devices = sizeof(supported_devices) / sizeof(supported_devices[0]);
@@ -48,7 +48,7 @@ static int n_supported_devices = sizeof(supported_devices) / sizeof(supported_de
 static const acdb_param *
 get_acdb_param(void)
 {
-  int device_id = detect_device();
+  enum device_id_t device_id = detect_device();
   int i;
 
   for (i = 0; i < n_supported_devices; i++) {
