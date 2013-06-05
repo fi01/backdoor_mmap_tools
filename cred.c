@@ -18,7 +18,7 @@
 #include "backdoor_mmap.h"
 
 typedef struct _supported_device {
-  enum device_id_t device_id;
+  device_id_t device_id;
   unsigned long int prepare_kernel_cred_address;
   unsigned long int commit_creds_address;
 } supported_device;
@@ -36,7 +36,7 @@ static int n_supported_devices = sizeof(supported_devices) / sizeof(supported_de
 static bool
 get_creds_functions_addresses(void **prepare_kernel_cred_address, void **commit_creds_address)
 {
-  enum device_id_t device_id = detect_device();
+  device_id_t device_id = detect_device();
   int i;
 
   for (i = 0; i < n_supported_devices; i++) {

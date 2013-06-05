@@ -16,7 +16,7 @@
 #include "backdoor_mmap.h"
 
 typedef struct _supported_device {
-  enum device_id_t device_id;
+  device_id_t device_id;
   unsigned long int ccsecurity_ops_address;
   unsigned long int search_binary_handler_address;
 } supported_device;
@@ -32,7 +32,7 @@ static void *search_binary_handler;
 static bool
 setup_variables(void)
 {
-  enum device_id_t device_id = detect_device();
+  device_id_t device_id = detect_device();
   int i;
 
   for (i = 0; i < n_supported_devices; i++) {

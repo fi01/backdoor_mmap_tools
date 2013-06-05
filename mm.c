@@ -8,7 +8,7 @@
 #include "mm.h"
 
 typedef struct _supported_device {
-  enum device_id_t device_id;
+  device_id_t device_id;
   unsigned long int remap_pfn_range_address;
 } supported_device;
 
@@ -25,7 +25,7 @@ static int n_supported_devices = sizeof(supported_devices) / sizeof(supported_de
 unsigned long int
 _get_remap_pfn_range_address(void)
 {
-  enum device_id_t device_id = detect_device();
+  device_id_t device_id = detect_device();
   unsigned long int ret;
   int i;
 

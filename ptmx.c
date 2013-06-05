@@ -8,7 +8,7 @@
 #include "ptmx.h"
 
 typedef struct _supported_device {
-  enum device_id_t device_id;
+  device_id_t device_id;
   unsigned long int ptmx_fops_address;
 } supported_device;
 
@@ -34,7 +34,7 @@ static int n_supported_devices = sizeof(supported_devices) / sizeof(supported_de
 unsigned long int
 get_ptmx_fops_address(void)
 {
-  enum device_id_t device_id = detect_device();
+  device_id_t device_id = detect_device();
   int ret;
   int i;
 

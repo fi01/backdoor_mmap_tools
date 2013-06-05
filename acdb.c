@@ -29,7 +29,7 @@ typedef struct _acdb_param {
 } acdb_param;
 
 typedef struct supported_device {
-  enum device_id_t device_id;
+  device_id_t device_id;
   const acdb_param param;
 } supported_device;
 
@@ -48,7 +48,7 @@ static int n_supported_devices = sizeof(supported_devices) / sizeof(supported_de
 static const acdb_param *
 get_acdb_param(void)
 {
-  enum device_id_t device_id = detect_device();
+  device_id_t device_id = detect_device();
   int i;
 
   for (i = 0; i < n_supported_devices; i++) {

@@ -23,7 +23,7 @@
 #define sizeof_do_mmap()  sizeof (do_mmap)
 
 typedef struct _supported_device {
-  enum device_id_t device_id;
+  device_id_t device_id;
   unsigned long int kernel_phys_offset;
   unsigned long int vmalloc_exec_address;
 } supported_device;
@@ -108,7 +108,7 @@ find_kernel_text_from_iomem(void)
 static bool
 setup_variables(void)
 {
-  enum device_id_t device_id = detect_device();
+  device_id_t device_id = detect_device();
   int i;
 
   kernel_phys_offset = 0;

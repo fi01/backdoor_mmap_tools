@@ -20,7 +20,7 @@
 #endif
 
 typedef struct _supported_device {
-  enum device_id_t device_id;
+  device_id_t device_id;
   unsigned long int perf_swevent_enabled_address;
 } supported_device;
 
@@ -47,7 +47,7 @@ static int n_supported_devices = sizeof(supported_devices) / sizeof(supported_de
 static unsigned long int
 get_perf_swevent_enabled_address(void)
 {
-  enum device_id_t device_id = detect_device();
+  device_id_t device_id = detect_device();
   int i;
 
   for (i = 0; i < n_supported_devices; i++) {
