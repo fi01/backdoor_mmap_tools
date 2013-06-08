@@ -35,6 +35,7 @@ static supported_device supported_devices[] = {
   { DEVICE_L02E_V10c,               0xc0c61038 },
   { DEVICE_L02E_V10e,               0xc0c61038 },
   { DEVICE_L06D_V10k,               0xc12f00e8 },
+  { DEVICE_LT29i_9_1_B_0_411,       0xc0cecd74 },
   { DEVICE_SC04E_OMUAMDI,           0xc11489d4 },
   { DEVICE_SH04E_01_00_02,          0xc0ed41ec },
   { DEVICE_SH04E_01_00_03,          0xc0ed41ec },

@@ -21,6 +21,7 @@ static supported_device supported_devices[] = {
   { DEVICE_IS17SH_01_00_04,         0xc0edae90 },
   // ISW13F: Fujitsu added a method in struct file_operations
   { DEVICE_ISW13F_V69R51I,          0xc09fc5fc + 4 },
+  { DEVICE_LT29i_9_1_B_0_411,       0xc0d01f60 },
   { DEVICE_SC04E_OMUAMDI,           0xc1169808 },
   { DEVICE_SCL21_KDALJD,            0xc0c71dc0 },
   { DEVICE_SH04E_01_00_02,          0xc0eed190 },
