@@ -17,6 +17,7 @@ static supported_device supported_devices[] = {
   { DEVICE_HTL22_1_05_970_1,       0xc0128b10 },
   { DEVICE_HTX21_1_20_971_1,       0xc00fa8b0 },
   { DEVICE_IS17SH_01_00_04,        0xc0208a34 },
+  { DEVICE_LT26W_1266_3278_6_2_B_0_200, 0xc0136294 },
   { DEVICE_LT29I_1266_3325_9_1_B_0_411, 0xc010ac30 },
   { DEVICE_SC04E_OMUAMDI,          0xc011383c },
   { DEVICE_SH04E_01_00_02,         0xc00e458c },
