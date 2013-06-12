@@ -23,6 +23,7 @@ static supported_device supported_devices[] = {
   { DEVICE_SC04E_OMUAMDI,          0xc011383c },
   { DEVICE_SH04E_01_00_02,         0xc00e458c },
   { DEVICE_SH04E_01_00_03,         0xc00e46bc },
+  { DEVICE_SO01E_9_1_C_0_473,      0xc010e1f4 },
   { DEVICE_SOL21_9_1_D_0_395,      0xc010e33c },
 };
 
