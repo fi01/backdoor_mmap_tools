@@ -16,12 +16,14 @@ static supported_device supported_devices[] = {
   // F10D: Fujitsu added a method in struct file_operations
   { DEVICE_F10D_V21R48A,            0xc09a60dc + 4 },
   { DEVICE_F11D_V24R40A,            0xc1056998 },
-  { DEVICE_HTL21_JRO03C,            0xc0d1d944 },
+  { DEVICE_HTL21_1_29_970_1,        0xc0d1d944 },
+  { DEVICE_HTL22_1_05_970_1,        0xc0df467c },
+  { DEVICE_HTX21_1_20_971_1,        0xc0ccc0b4 },
   { DEVICE_ISW12K_010_0_3000,       0xc0dc0a10 },
   { DEVICE_IS17SH_01_00_04,         0xc0edae90 },
   // ISW13F: Fujitsu added a method in struct file_operations
   { DEVICE_ISW13F_V69R51I,          0xc09fc5fc + 4 },
-  { DEVICE_LT29i_9_1_B_0_411,       0xc0d01f60 },
+  { DEVICE_LT29I_1266_3325_9_1_B_0_411, 0xc0d01f60 },
   { DEVICE_SC04E_OMUAMDI,           0xc1169808 },
   { DEVICE_SCL21_KDALJD,            0xc0c71dc0 },
   { DEVICE_SH04E_01_00_02,          0xc0eed190 },

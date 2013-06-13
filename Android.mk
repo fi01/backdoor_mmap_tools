@@ -54,7 +54,6 @@ LOCAL_SRC_FILES := \
   install_backdoor.c \
   backdoor_mmap.c \
   kallsyms.c \
-  perf_swevent.c \
   acdb.c \
   ptmx.c \
   mm.c
@@ -63,6 +62,7 @@ LOCAL_MODULE := install_backdoor
 LOCAL_MODULE_TAGS := optional
 LOCAL_FORCE_STATIC_EXECUTABLE := true
 LOCAL_STATIC_LIBRARIES := libdiagexploit
+LOCAL_STATIC_LIBRARIES += libperf_event_exploit
 LOCAL_STATIC_LIBRARIES += libdevice_database
 LOCAL_STATIC_LIBRARIES += libcutils libc
 

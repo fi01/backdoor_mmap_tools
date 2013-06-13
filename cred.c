@@ -11,7 +11,7 @@
 #include "device_database/device_database.h"
 #include "cred.h"
 #include "mm.h"
-#include "perf_swevent.h"
+#include "libperf_event_exploit/perf_swevent.h"
 #include "ptmx.h"
 #include "libdiagexploit/diag.h"
 #include "kallsyms.h"
@@ -24,9 +24,11 @@ typedef struct _supported_device {
 } supported_device;
 
 static supported_device supported_devices[] = {
-  { DEVICE_HTL21_JRO03C,            0xc00ab9d8, 0xc00ab4c4 },
+  { DEVICE_HTL21_1_29_970_1,        0xc00ab9d8, 0xc00ab4c4 },
+  { DEVICE_HTL22_1_05_970_1,        0xc00b2688, 0xc00b2174 },
+  { DEVICE_HTX21_1_20_971_1,        0xc00a6e54, 0xc00a6940 },
   { DEVICE_IS17SH_01_00_04,         0xc01c66a8, 0xc01c5fd8 },
-  { DEVICE_LT29i_9_1_B_0_411,       0xc0095dec, 0xc0095910 },
+  { DEVICE_LT29I_1266_3325_9_1_B_0_411, 0xc0095dec, 0xc0095910 },
   { DEVICE_SC04E_OMUAMDI,           0xc0096068, 0xc0095b54 },
   { DEVICE_SH04E_01_00_02,          0xc008d86c, 0xc008d398 },
   { DEVICE_SH04E_01_00_03,          0xc008d99c, 0xc008d4c8 },
