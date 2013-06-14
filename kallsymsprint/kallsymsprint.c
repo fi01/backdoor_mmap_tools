@@ -108,23 +108,50 @@ kallsyms_print_all()
 	return;
 }
 
-static const unsigned long const pattern_kallsyms_addresses[] = {
-    //0xc0008000, // __init_begin
-    //0xc0008000, // _sinittext   // _sinittext is moved to 0xc0c00000
-    0xc0008000,   // stext
-    0xc0008000    // _text
+static const unsigned long const pattern_kallsyms_addresses_1[] = {
+  0xc0008000, // __init_begin
+  0xc0008000, // _sinittext
+  0xc0008000, // stext
+  0xc0008000, // _text
+  0
+};
+
+static const unsigned long const pattern_kallsyms_addresses_2[] = {
+  0xc0008000, // stext
+  0xc0008000, // _text
+  0
+};
+
+static const unsigned long const pattern_kallsyms_addresses_3[] = {
+  0xc00081c0, // asm_do_IRQ
+  0xc00081c0, // _stext
+  0xc00081c0, // __exception_text_start
+  0
+};
+
+static const unsigned long const * const pattern_kallsyms_addresses[] = {
+  pattern_kallsyms_addresses_1,
+  pattern_kallsyms_addresses_2,
+  pattern_kallsyms_addresses_3,
 };
 
 static unsigned long *
-search_pattern(unsigned long *base, unsigned long count, const unsigned long *const pattern, int patlen)
+search_pattern(unsigned long *base, unsigned long count, const unsigned long *const pattern)
 {
   unsigned long *addr = base;
   unsigned long i;
-  for (i = 0; i < count; i++) {
+  int pattern_count;
+
+  for (pattern_count = 0; pattern[pattern_count]; pattern_count++) {
+    ;
+  }
+
+  for (i = 0; i < count - pattern_count; i++) {
     if(addr[i] != pattern[0]) {
       continue;
     }
-    if (memcmp(&addr[i], pattern, patlen) == 0) {
+
+    if (memcmp(&addr[i], pattern, sizeof (pattern[0]) * pattern_count) == 0) {
       return &addr[i];
     }
   }
@@ -164,10 +191,19 @@ get_kallsyms_addresses(unsigned long *mem, unsigned long length, unsigned long o
   unsigned long *end = (unsigned long*)((unsigned long)mem + length);
 
   while (addr < end) {
+    unsigned long *search = addr;
+    unsigned long i;
+
     // get kallsyms_addresses pointer
-    addr = search_pattern(addr, end - addr, pattern_kallsyms_addresses, sizeof(pattern_kallsyms_addresses));
+    for (i = 0; i < sizeof (pattern_kallsyms_addresses) / sizeof (pattern_kallsyms_addresses[0]); i++) {
+      addr = search_pattern(search, end - search, pattern_kallsyms_addresses[i]);
+      if (addr) {
+        break;
+      }
+    }
+
     if (!addr) {
-      return 0;
+        return 0;
     }
 
     kallsyms_addresses = addr;
@@ -216,7 +252,6 @@ get_kallsyms_addresses(unsigned long *mem, unsigned long length, unsigned long o
     DBGPRINT("[+]kallsyms_names=%08x\n", (unsigned int)kallsyms_names + (unsigned int)offset);
 
     // search end of kallsyms_names
-    unsigned long i;
     unsigned int off;
     for (i = 0, off = 0; i < kallsyms_num_syms; i++) {
       int len = kallsyms_names[off];
