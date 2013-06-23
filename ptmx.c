@@ -16,6 +16,7 @@ static supported_device supported_devices[] = {
   // F10D: Fujitsu added a method in struct file_operations
   { DEVICE_F10D_V21R48A,            0xc09a60dc + 4 },
   { DEVICE_F11D_V24R40A,            0xc1056998 },
+  { DEVICE_FJL21_V23R39X,           0xc0ee31f8 },
   { DEVICE_HTL21_1_29_970_1,        0xc0d1d944 },
   { DEVICE_HTL22_1_05_970_1,        0xc0df467c },
   { DEVICE_HTL22_1_07_970_4,        0xc0df52bc },
