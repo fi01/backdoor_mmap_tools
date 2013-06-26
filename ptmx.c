@@ -13,6 +13,8 @@ typedef struct _supported_device {
 } supported_device;
 
 static supported_device supported_devices[] = {
+  { DEVICE_F05D_V08R31C,            0xc07bc164 },
+  { DEVICE_F05D_V11R40A,            0xc07bbf44 },
   // F10D: Fujitsu added a method in struct file_operations
   { DEVICE_F10D_V21R48A,            0xc09a60dc + 4 },
   { DEVICE_F11D_V24R40A,            0xc1056998 },
@@ -22,6 +24,8 @@ static supported_device supported_devices[] = {
   { DEVICE_HTL22_1_05_970_1,        0xc0df467c },
   { DEVICE_HTL22_1_07_970_4,        0xc0df52bc },
   { DEVICE_HTX21_1_20_971_1,        0xc0ccc0b4 },
+  { DEVICE_ISW11F_V25R45A,          0xc080e268 },
+  { DEVICE_ISW11F_V27R47I,          0xc080e028 },
   { DEVICE_ISW12K_010_0_3000,       0xc0dc0a10 },
   { DEVICE_IS17SH_01_00_04,         0xc0edae90 },
   // ISW13F: Fujitsu added a method in struct file_operations
