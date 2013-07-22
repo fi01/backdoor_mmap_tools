@@ -16,7 +16,9 @@
 
 //#define DISABLE_UNLOCK_MMC_SYSTEM_WRITE
 
-#define mmc_protect_part        0xc0852b94
+#define mmc_protect_part_01_00_02       0xc0852b94
+#define mmc_protect_part_01_00_03       0xc0852b94
+#define mmc_protect_part_01_00_04       0xc0852b84
 
 #define MMC_BOOT_PARTITION      11
 #define MMC_RECOVERY_PARTITION  12
@@ -48,6 +50,8 @@ static const struct mmc_protect_inf check_mmc_protect_part[] = {
 };
 
 static int n_mmc_protect_part = sizeof (check_mmc_protect_part) / sizeof (check_mmc_protect_part[0]);
+
+static unsigned long int mmc_protect_part;
 
 bool
 unlock_mmc_protect_part(void)
@@ -113,6 +117,24 @@ do_unlock(void)
 int
 main(int argc, char **argv)
 {
+  switch (detect_device()) {
+  case DEVICE_SH04E_01_00_02:
+    mmc_protect_part = mmc_protect_part_01_00_02;
+    break;
+
+  case DEVICE_SH04E_01_00_03:
+    mmc_protect_part = mmc_protect_part_01_00_03;
+    break;
+
+  case DEVICE_SH04E_01_00_04:
+    mmc_protect_part = mmc_protect_part_01_00_04;
+    break;
+
+  default:
+    print_reason_device_not_supported();
+    return 1;
+  }
+
   if (!do_unlock()) {
     printf("Failed to unlock MMC protect.\n");
     exit(EXIT_FAILURE);

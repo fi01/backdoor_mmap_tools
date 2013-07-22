@@ -54,7 +54,6 @@ LOCAL_SRC_FILES := \
   install_backdoor.c \
   backdoor_mmap.c \
   kallsyms.c \
-  acdb.c \
   ptmx.c \
   mm.c
 

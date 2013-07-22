@@ -8,7 +8,7 @@
 
 #include "device_database/device_database.h"
 #include "libperf_event_exploit/perf_swevent.h"
-#include "acdb.h"
+#include "libmsm_acdb_exploit/acdb.h"
 #include "ptmx.h"
 #include "mm.h"
 #include "libdiagexploit/diag.h"
@@ -36,6 +36,7 @@ static supported_device supported_devices[] = {
   { DEVICE_LT29I_9_1_B_0_411,       0x80208000, 0xc01177e0 },
   { DEVICE_SH04E_01_00_02,          0x80208000, 0xc00f10d4 },
   { DEVICE_SH04E_01_00_03,          0x80208000, 0xc00f1204 },
+  { DEVICE_SH04E_01_00_04,          0x80208000, 0xc00f121c },
   { DEVICE_SC04E_MDI,               0x80208000, 0xc01206d8 },
   { DEVICE_SOL21_9_1_D_0_395,       0x80208000, 0xc011aeec },
 };
