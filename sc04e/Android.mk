@@ -4,11 +4,11 @@ include $(CLEAR_VARS)
 
 LOCAL_SRC_FILES := \
   ../kallsyms.c \
-  sec_unlock_sc04e.c \
+  unlock_sec_sc04e.c \
   ../ptmx.c \
   ../backdoor_mmap.c
 
-LOCAL_MODULE := sec_unlock_sc04e
+LOCAL_MODULE := unlock_sec_sc04e
 LOCAL_MODULE_TAGS := optional
 LOCAL_C_INCLUDES += .
 LOCAL_FORCE_STATIC_EXECUTABLE := true
