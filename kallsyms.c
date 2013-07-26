@@ -33,7 +33,7 @@ kallsyms_get_symbol_address(const char *symbol_name)
 
   fp = fopen("/proc/kallsyms", "r");
   if (!fp) {
-    printf("Failed to open /proc/kallsyms due to %s.", strerror(errno));
+    printf("Failed to open /proc/kallsyms due to %s.\n", strerror(errno));
     return 0;
   }
 
@@ -64,7 +64,7 @@ kallsyms_get_symbol_by_address(void *symbol_address)
 
   fp = fopen("/proc/kallsyms", "r");
   if (!fp) {
-    printf("Failed to open /proc/kallsyms due to %s.", strerror(errno));
+    printf("Failed to open /proc/kallsyms due to %s.\n", strerror(errno));
     return 0;
   }
 
