@@ -57,6 +57,34 @@ struct patch_info_t {
 #define putname_address               0xc013ecc0
 #include "unlock_sec_sc04e.h"
 
+#define VERNAME(NAME)       NAME##_MF2
+#define reset_security_ops_address    0xc027eda8
+#define default_security_ops_address  0xc0fa6844
+#define security_ops_address          0xc1150670
+#define sec_restrict_uid_address      0xc0085a10
+#define sec_check_execpath_address    0xc0011550
+#define sys_execve_address            0xc00116b0
+#define _raw_read_lock_address        0xc07ff65c
+#define get_mm_exe_file_address       0xc007101c
+#define getname_address               0xc013ed60
+#define do_execve_address             0xc013b2e4
+#define putname_address               0xc013ed6c
+#include "unlock_sec_sc04e.h"
+
+#define VERNAME(NAME)       NAME##_MG2
+#define reset_security_ops_address    0xc027edb0
+#define default_security_ops_address  0xc0fa6844
+#define security_ops_address          0xc1150670
+#define sec_restrict_uid_address      0xc0085a10
+#define sec_check_execpath_address    0xc0011550
+#define sys_execve_address            0xc00116b0
+#define _raw_read_lock_address        0xc07ff654
+#define get_mm_exe_file_address       0xc007101c
+#define getname_address               0xc013ed68
+#define do_execve_address             0xc013b2ec
+#define putname_address               0xc013ed74
+#include "unlock_sec_sc04e.h"
+
 static const unsigned long int return_zero[] = {
   0xe3a00000, //    MOV     R0, #$0
   0xe12fff1e, //    BX      LR
