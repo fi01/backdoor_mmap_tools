@@ -108,7 +108,7 @@ check_unlock_code(struct check_code_t *check_code, const char *version)
     if (memcmp(p, check_code[pos].expected, len * sizeof (check_code[pos].expected[0])) != 0) {
       int i;
 
-      printf("kernel code doesn't match at 0x%08x for %s!!\n", check_code[pos].addr, version);
+//      printf("kernel code didn't match at 0x%08x for %s!!\n", check_code[pos].addr, version);
       for (i = 0; i < len; i++) {
 //        printf("  0x%08x -- 0x%08x\n", p[i], check_code[pos].expected[i]);
       }
@@ -121,6 +121,9 @@ check_unlock_code(struct check_code_t *check_code, const char *version)
 
   if (ret) {
     printf("kernel code matched for %s\n", version);
+  }
+  else {
+    printf("kernel code didn't match for %s\n", version);
   }
 
   return ret;
@@ -162,7 +165,17 @@ do_unlock(void)
     return false;
   }
 
-  if (check_unlock_code(check_code_MF1, "MF1")) {
+  if (check_unlock_code(check_code_MG2, "MG2")) {
+    do_patch(&patch_info_MG2);
+    ret = true;
+  }
+
+  if (!ret && check_unlock_code(check_code_MF2, "MF2")) {
+    do_patch(&patch_info_MF2);
+    ret = true;
+  }
+
+  if (!ret && check_unlock_code(check_code_MF1, "MF1")) {
     do_patch(&patch_info_MF1);
     ret = true;
   }
