@@ -31,16 +31,16 @@ int n_lsm_fixes;
 #define security_ops_02_00_03   0xc08200f8
 
 static lsm_fix_t lsm_fixes_02_00_03[] = {
-  { 0xc02199e8, 0xc021759c },    // ptrace_access_check
-  { 0xc02199f0, 0xc0217634 },    // ptrace_traceme
-  { 0xc021a1dc, 0xc02179fc },    // bprm_set_creds
-  { 0xc021a004, 0xc02196d8 },    // sb_mount
-  { 0xc0219e84, 0xc02196e0 },    // sb_umount
-  { 0xc0219e14, 0xc02196e8 },    // sb_pivotroot
-  { 0xc0219ef0, 0xc02197d0 },    // path_symlink
-  { 0xc0219d80, 0xc02197f0 },    // path_chmod
-  { 0xc0219d20, 0xc0219800 },    // path_chroot
-  { 0xc02199f8, 0xc0217f44 },    // task_fix_setuid
+  { 0xc0219a00, 0xc02175b4 },    // ptrace_access_check
+  { 0xc0219a08, 0xc021764c },    // ptrace_traceme
+  { 0xc021a1f4, 0xc0217a14 },    // bprm_set_creds
+  { 0xc021a01c, 0xc02196f0 },    // sb_mount
+  { 0xc0219e9c, 0xc02196f8 },    // sb_umount
+  { 0xc0219e2c, 0xc0219700 },    // sb_pivotroot
+  { 0xc0219f08, 0xc02197e8 },    // path_symlink
+  { 0xc0219d98, 0xc0219808 },    // path_chmod
+  { 0xc0219d38, 0xc0219818 },    // path_chroot
+  { 0xc0219a10, 0xc0217f5c },    // task_fix_setuid
 };
 
 static int n_lsm_fixes_02_00_03 = sizeof (lsm_fixes_02_00_03) / sizeof (lsm_fixes_02_00_03[0]);

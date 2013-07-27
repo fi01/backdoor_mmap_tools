@@ -16,7 +16,7 @@
 
 //#define DISABLE_UNLOCK_MMC_SYSTEM_WRITE
 
-#define mmc_protect_part_02_00_03       0xc0853764
+#define mmc_protect_part_02_00_03       0xc0853774
 
 #define MMC_BOOT_PARTITION      11
 #define MMC_RECOVERY_PARTITION  12
