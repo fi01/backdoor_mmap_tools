@@ -27,15 +27,17 @@ How to use
 
 	`unlock_lsm_fjsec`
 
-* Unlock MIYABI LSM for SH-02E/SH-04E.
+* Unlock MIYABI LSM for SH-02E/SH-04E/SH-05E.
 
 	`unlock_lsm_sh02e`
 	`unlock_lsm_sh04e`
+	`unlock_lsm_sh05e`
 
-* Unlock MMC protected partitions for for SH-02E/SH-04E.
+* Unlock MMC protected partitions for for SH-02E/SH-04E/SH-05E.
 
 	`unlock_mmc_sh02e`
 	`unlock_mmc_sh04e`
+	`unlock_mmc_sh05e`
 
 * Unlock SEC LSM for SC-04E.
 
@@ -52,4 +54,4 @@ How to use
 * Print kernel symbols out.
 
 	`kallsymsprint`
-	
+
