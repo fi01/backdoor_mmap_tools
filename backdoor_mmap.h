@@ -1,6 +1,6 @@
 #include <stdbool.h>
 
-#define BACKDOOR_MMAP_SIZE    0x0a000000
+#define BACKDOOR_MMAP_SIZE    0x02000000
 #define BACKDOOR_MMAP_ADDRESS 0x20000000
 
 extern void *backdoor_convert_to_kernel_address(void *address);
