@@ -16,7 +16,8 @@
 
 //#define DISABLE_UNLOCK_MMC_SYSTEM_WRITE
 
-#define mmc_protect_part_01_00_09       0xc09b6e58
+#define mmc_protect_part_01_00_09       (0xc09b6e58 + sizeof (struct mmc_protect_inf))
+#define mmc_protect_part_01_01_02       0xc074feac
 
 #define MMC_BOOT_PARTITION      10
 #define MMC_RECOVERY_PARTITION  13
@@ -32,7 +33,6 @@ struct mmc_protect_inf {
 #define MMC_PROTECT_WRITE       0x02
 
 static const struct mmc_protect_inf check_mmc_protect_part[] = {
-  { 0,                    MMC_PROTECT_WRITE },
   { 1,                    MMC_PROTECT_WRITE },
   { 2,                    MMC_PROTECT_WRITE },
   { 3, MMC_PROTECT_READ | MMC_PROTECT_WRITE },
@@ -119,6 +119,10 @@ main(int argc, char **argv)
   switch (detect_device()) {
   case DEVICE_SHL21_01_00_09:
     mmc_protect_part = mmc_protect_part_01_00_09;
+    break;
+
+  case DEVICE_SHL21_01_01_02:
+    mmc_protect_part = mmc_protect_part_01_01_02;
     break;
 
   default:

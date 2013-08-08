@@ -29,6 +29,7 @@ lsm_fix_t *lsm_fixes;
 int n_lsm_fixes;
 
 #define security_ops_01_00_09   0xc0e78c64
+#define security_ops_01_01_02   0xc071f0f8
 
 static lsm_fix_t lsm_fixes_01_00_09[] = {
   { 0xc0341e14, 0xc033fbbc },   // ptrace_access_check
@@ -41,6 +42,22 @@ static lsm_fix_t lsm_fixes_01_00_09[] = {
 };
 
 static int n_lsm_fixes_01_00_09 = sizeof (lsm_fixes_01_00_09) / sizeof (lsm_fixes_01_00_09[0]);
+
+static lsm_fix_t lsm_fixes_01_01_02[] = {
+  { 0xc0218454, 0xc0215c04 },   // ptrace_access_check
+  { 0xc021845c, 0xc0215c9c },   // ptrace_traceme
+  { 0xc0218530, 0xc02165ac },   // task_fix_setuid
+  { 0xc021878c, 0xc021818c },   // path_chroot
+  { 0xc02187ec, 0xc021817c },   // path_chmod
+  { 0xc0218880, 0xc0218074 },   // sb_pivotroot
+  { 0xc02188f0, 0xc021806c },   // sb_umount
+  { 0xc021895c, 0xc021815c },   // path_symlink
+  { 0xc0218a70, 0xc0218064 },   // sb_mount
+  { 0xc0218c48, 0xc0216064 },   // bprm_set_creds
+  { 0xc0218cf0, 0xc0218370 },   // socket_setsockopt
+};
+
+static int n_lsm_fixes_01_01_02 = sizeof (lsm_fixes_01_01_02) / sizeof (lsm_fixes_01_01_02[0]);
 
 bool
 unlock_lsm(void)
@@ -94,6 +111,12 @@ main(int argc, char **argv)
     security_ops = security_ops_01_00_09;
     lsm_fixes = lsm_fixes_01_00_09;
     n_lsm_fixes = n_lsm_fixes_01_00_09;
+    break;
+
+  case DEVICE_SHL21_01_01_02:
+    security_ops = security_ops_01_01_02;
+    lsm_fixes = lsm_fixes_01_01_02;
+    n_lsm_fixes = n_lsm_fixes_01_01_02;
     break;
 
   default:
