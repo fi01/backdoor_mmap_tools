@@ -7,7 +7,8 @@ LOCAL_SRC_FILES := \
   kallsyms.c \
   main.c \
   ptmx.c \
-  backdoor_mmap.c
+  backdoor_mmap.c \
+  mmap.c
 
 LOCAL_MODULE := run_root_shell
 LOCAL_MODULE_TAGS := optional
