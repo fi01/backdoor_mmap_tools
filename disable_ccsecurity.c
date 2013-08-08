@@ -15,19 +15,25 @@
 #include "kallsyms.h"
 #include "backdoor_mmap.h"
 
+#define MAX_CCS_SEARCH_BINARY_HANDLERS  2
+
 typedef struct _supported_device {
   device_id_t device_id;
   unsigned long int ccsecurity_ops_address;
   unsigned long int search_binary_handler_address;
+  unsigned long int __ccs_search_binary_handler_address[MAX_CCS_SEARCH_BINARY_HANDLERS];
 } supported_device;
 
 static supported_device supported_devices[] = {
+  { DEVICE_L01E_V20b, 0xc0daeab0, 0xc0132310, { 0xc0208564, 0xc020aec0, }, },
+  { DEVICE_L02E_V20a, 0xc0c145a0, 0xc0149c4c, { 0xc020e604, 0xc02110d4, }, },
 };
 
 static int n_supported_devices = sizeof(supported_devices) / sizeof(supported_devices[0]);
 
 static void *ccsecurity_ops;
 static void *search_binary_handler;
+static void **__ccs_search_binary_handler;
 
 static bool
 setup_variables(void)
@@ -39,6 +45,7 @@ setup_variables(void)
     if (supported_devices[i].device_id == device_id) {
       ccsecurity_ops = (void *)supported_devices[i].ccsecurity_ops_address;
       search_binary_handler = (void *)supported_devices[i].search_binary_handler_address;
+      __ccs_search_binary_handler = (void **)supported_devices[i].__ccs_search_binary_handler_address;
       break;
     }
   }
@@ -61,25 +68,36 @@ static bool
 disable_ccsecurity(void)
 {
   void **p;
-  char *name;
   int i;
 
   p = backdoor_convert_to_mmaped_address(ccsecurity_ops);
-  name = kallsyms_get_symbol_by_address(p[BINARY_HANDLER_POS]);
 
-  if (strcmp(name, "__ccs_search_binary_handler")) {
-    if (!strcmp(name, "search_binary_handler")) {
-      printf("Already disabled??\n");
+  if (p[BINARY_HANDLER_POS] == search_binary_handler) {
+    printf("Already disabled??\nUnlock anyway.");
+  }
+  else if (__ccs_search_binary_handler) {
+    for (i = 0; i < MAX_CCS_SEARCH_BINARY_HANDLERS; i++) {
+      if (__ccs_search_binary_handler[i] && p[BINARY_HANDLER_POS] == __ccs_search_binary_handler[i]) {
+	break;
+      }
     }
-    else {
+
+    if (i == MAX_CCS_SEARCH_BINARY_HANDLERS) {
+      printf("check failed: ccsecurity_ops[%d] = %%p\n", BINARY_HANDLER_POS, p[BINARY_HANDLER_POS]);
+      return false;
+    }
+  }
+  else {
+    char *name = kallsyms_get_symbol_by_address(p[BINARY_HANDLER_POS]);
+
+    if (strcmp(name, "__ccs_search_binary_handler")) {
       printf("check failed: ccsecurity_ops[%d] = %s\n", BINARY_HANDLER_POS, name);
+      free(name);
+      return false;
     }
 
     free(name);
-    return false;
   }
-
-  free(name);
 
   for (i = 0; i < NUM_CCSECURITY_OPS; i++) {
     switch (i) {
