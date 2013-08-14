@@ -39,6 +39,7 @@ static lsm_fix_t lsm_fixes_01_00_09[] = {
   { 0xc0342120, 0xc0341a20 },   // sb_pivotroot
   { 0xc0342188, 0xc0341b08 },   // path_symlink
   { 0xc0342100, 0xc0341b38 },   // path_chroot
+  { 0xc03425d8, 0xc0341d18 },   // socket_setsockopt
 };
 
 static int n_lsm_fixes_01_00_09 = sizeof (lsm_fixes_01_00_09) / sizeof (lsm_fixes_01_00_09[0]);
