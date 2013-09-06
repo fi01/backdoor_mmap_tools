@@ -29,6 +29,7 @@ lsm_fix_t *lsm_fixes;
 int n_lsm_fixes;
 
 #define security_ops_01_00_05   0xc0c68108
+#define security_ops_01_00_06   0xc0c68108
 
 static lsm_fix_t lsm_fixes_01_00_05[] = {
   { 0xc03436bc, 0xc03418ec },    // ptrace_access_check
@@ -41,6 +42,18 @@ static lsm_fix_t lsm_fixes_01_00_05[] = {
 };
 
 static int n_lsm_fixes_01_00_05 = sizeof (lsm_fixes_01_00_05) / sizeof (lsm_fixes_01_00_05[0]);
+
+static lsm_fix_t lsm_fixes_01_00_06[] = {
+  { 0xc0343790, 0xc03419c0 },   // ptrace_access_check
+  { 0xc0343798, 0xc034193c },   // ptrace_traceme
+  { 0xc03437a0, 0xc0343474 },   // sb_umount
+  { 0xc0343a14, 0xc034346c },   // sb_mount
+  { 0xc0343cec, 0xc034347c },   // sb_pivotroot
+  { 0xc0343bf0, 0xc0343564 },   // path_symlink
+  { 0xc0343d44, 0xc0343594 },   // path_chroot
+};
+
+static int n_lsm_fixes_01_00_06 = sizeof (lsm_fixes_01_00_06) / sizeof (lsm_fixes_01_00_06[0]);
 
 bool
 unlock_lsm(void)
@@ -103,6 +116,12 @@ main(int argc, char **argv)
     security_ops = security_ops_01_00_05;
     lsm_fixes = lsm_fixes_01_00_05;
     n_lsm_fixes = n_lsm_fixes_01_00_05;
+    break;
+
+  case DEVICE_SH05E_01_00_06:
+    security_ops = security_ops_01_00_06;
+    lsm_fixes = lsm_fixes_01_00_06;
+    n_lsm_fixes = n_lsm_fixes_01_00_06;
     break;
 
   default:

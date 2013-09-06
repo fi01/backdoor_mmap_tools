@@ -17,6 +17,7 @@
 //#define DISABLE_UNLOCK_MMC_SYSTEM_WRITE
 
 #define mmc_protect_part_01_00_05       0xc0821424
+#define mmc_protect_part_01_00_06       0xc08216e4
 
 #define MMC_BOOT_PARTITION      10
 #define MMC_RECOVERY_PARTITION  13
@@ -118,6 +119,10 @@ main(int argc, char **argv)
   switch (detect_device()) {
   case DEVICE_SH05E_01_00_05:
     mmc_protect_part = mmc_protect_part_01_00_05;
+    break;
+
+  case DEVICE_SH05E_01_00_06:
+    mmc_protect_part = mmc_protect_part_01_00_06;
     break;
 
   default:
