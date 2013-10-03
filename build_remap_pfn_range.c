@@ -13,7 +13,7 @@ static num_long_branch;
 static unsigned long long_branch[] = {
   0xe92d4010,   // STMPW   [SP], { R4, LR }
   0xe59f4004,   // LDR     R4, =$deadbeef [pc + $c]
-  0xe12fff34,   // BX      R4
+  0xe12fff34,   // BLX     R4
   0xe8bd8010,   // LDMUW   [SP], { R4, PC }
                 // DW      $deadbeef
 };
