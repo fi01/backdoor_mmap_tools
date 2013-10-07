@@ -27,17 +27,27 @@ How to use
 
 	`unlock_lsm_fjsec`
 
-* Unlock MIYABI LSM for SH-02E/SH-04E/SH-05E.
+* Unlock MIYABI LSM for SHARP devices.
+Support devices are: SBM203SH/SH-09D/SH-02E/SH-04E/SH-05E/SH-06E/SHL21
 
+	`unlock_lsm_sbm203sh`
+	`unlock_lsm_sh09d`
 	`unlock_lsm_sh02e`
 	`unlock_lsm_sh04e`
 	`unlock_lsm_sh05e`
+	`unlock_lsm_sh06e`
+	`unlock_lsm_shl21`
 
-* Unlock MMC protected partitions for for SH-02E/SH-04E/SH-05E.
+* Unlock MMC protected partitions for SHARP devices.
+Support devices are: SBM203SH/SH-09D/SH-02E/SH-04E/SH-05E/SH-06E/SHL21
 
+	`unlock_mmc_sbm203sh`
+	`unlock_mmc_sh09d`
 	`unlock_mmc_sh02e`
 	`unlock_mmc_sh04e`
 	`unlock_mmc_sh05e`
+	`unlock_mmc_sh06e`
+	`unlock_mmc_shl21`
 
 * Unlock SEC LSM for SC-04E.
 
