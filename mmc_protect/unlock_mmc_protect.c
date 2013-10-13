@@ -24,6 +24,7 @@
 #define mmc_protect_part_sh05e_01_00_05 0xc0821424
 #define mmc_protect_part_sh05e_01_00_06 0xc08216e4
 #define mmc_protect_part_sh06e_01_00_06 0xc086aa5c
+#define mmc_protect_part_sh06e_01_00_07 0xc086aa54
 #define mmc_protect_part_sh07e_01_00_03 0xc086968c
 #define mmc_protect_part_sh09d_02_00_03 0xc075262c
 #define mmc_protect_part_shl21_01_00_09 0xc09b6e58
@@ -183,6 +184,10 @@ main(int argc, char **argv)
 
   case DEVICE_SH06E_01_00_06:
     mmc_protect_part = mmc_protect_part_sh06e_01_00_06;
+    break;
+
+  case DEVICE_SH06E_01_00_07:
+    mmc_protect_part = mmc_protect_part_sh06e_01_00_07;
     break;
 
   case DEVICE_SH07E_01_00_03:
