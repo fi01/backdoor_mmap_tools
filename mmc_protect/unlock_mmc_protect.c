@@ -23,6 +23,7 @@
 #define mmc_protect_part_sh04e_01_00_04 0xc0852b84
 #define mmc_protect_part_sh05e_01_00_05 0xc0821424
 #define mmc_protect_part_sh05e_01_00_06 0xc08216e4
+#define mmc_protect_part_sh06e_01_00_01 0xc086aa1c
 #define mmc_protect_part_sh06e_01_00_06 0xc086aa5c
 #define mmc_protect_part_sh06e_01_00_07 0xc086aa54
 #define mmc_protect_part_sh07e_01_00_03 0xc086968c
@@ -183,6 +184,10 @@ main(int argc, char **argv)
     check_mmc_protect_part = check_mmc_protect_part_type2;
     n_mmc_protect_part = n_mmc_protect_part_type2;
     mmc_system_partition = MMC_SYSTEM_PARTITION_TYPE2;
+    break;
+
+  case DEVICE_SH06E_01_00_01:
+    mmc_protect_part = mmc_protect_part_sh06e_01_00_01;
     break;
 
   case DEVICE_SH06E_01_00_06:
