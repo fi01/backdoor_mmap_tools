@@ -16,7 +16,7 @@
 
 //#define DISABLE_UNLOCK_MMC_SYSTEM_WRITE
 
-#define mmc_protect_part_01_00_03       0xc086968c
+#define mmc_protect_part_01_00_03       (0xc086968c + sizeof (struct mmc_protect_inf))
 
 #define MMC_BOOT_PARTITION      10
 #define MMC_RECOVERY_PARTITION  11
