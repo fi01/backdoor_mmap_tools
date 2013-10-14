@@ -14,6 +14,8 @@
 #include "device_database/device_database.h"
 #include "backdoor_mmap.h"
 
+#define ARRAY_SIZE(x)           (sizeof (x) / sizeof (x[0]))
+
 #define SECURITY_OPS_OFFSET     3
 
 
@@ -26,6 +28,11 @@ unsigned long int security_ops;
 int n_security_ops;
 lsm_fix_t *lsm_fixes;
 int n_lsm_fixes;
+
+unsigned long int unlock_module_patch_address = 0;
+unsigned long int *unlock_module_patch_data = NULL;
+int unlock_module_patch_data_size = 0;
+
 
 #define security_ops_sbm203sh_s0024     0xc0820278
 #define n_security_ops_sbm203sh_s0024   140
@@ -43,7 +50,6 @@ static lsm_fix_t lsm_fixes_sbm203sh_s0024[] = {
   { 0xc02199f4, 0xc0217f40 },   // task_fix_setuid
 };
 
-static int n_lsm_fixes_sbm203sh_s0024 = sizeof (lsm_fixes_sbm203sh_s0024) / sizeof (lsm_fixes_sbm203sh_s0024[0]);
 
 #define security_ops_sh02e_02_00_03     0xc08200f8
 #define n_security_ops_sh02e_02_00_03   140
@@ -60,8 +66,6 @@ static lsm_fix_t lsm_fixes_sh02e_02_00_03[] = {
   { 0xc0219d38, 0xc0219818 },   // path_chroot
   { 0xc0219a10, 0xc0217f5c },   // task_fix_setuid
 };
-
-static int n_lsm_fixes_sh02e_02_00_03 = sizeof (lsm_fixes_sh02e_02_00_03) / sizeof (lsm_fixes_sh02e_02_00_03[0]);
 
 
 #define security_ops_sh04e_01_00_02     0xc08202b8
@@ -80,7 +84,6 @@ static lsm_fix_t lsm_fixes_sh04e_01_00_02[] = {
   { 0xc021bde0, 0xc021a32c },   // task_fix_setuid
 };
 
-static int n_lsm_fixes_sh04e_01_00_02 = sizeof (lsm_fixes_sh04e_01_00_02) / sizeof (lsm_fixes_sh04e_01_00_02[0]);
 
 #define security_ops_sh04e_01_00_03     0xc08202b8
 #define n_security_ops_sh04e_01_00_03   140
@@ -98,7 +101,6 @@ static lsm_fix_t lsm_fixes_sh04e_01_00_03[] = {
   { 0xc021bf10, 0xc021a45c },   // task_fix_setuid
 };
 
-static int n_lsm_fixes_sh04e_01_00_03 = sizeof (lsm_fixes_sh04e_01_00_03) / sizeof (lsm_fixes_sh04e_01_00_03[0]);
 
 #define security_ops_sh04e_01_00_04     0xc08202b8
 #define n_security_ops_sh04e_01_00_04   140
@@ -116,7 +118,6 @@ static lsm_fix_t lsm_fixes_sh04e_01_00_04[] = {
   { 0xc021bf28, 0xc021a474 },   // task_fix_setuid
 };
 
-static int n_lsm_fixes_sh04e_01_00_04 = sizeof (lsm_fixes_sh04e_01_00_04) / sizeof (lsm_fixes_sh04e_01_00_04[0]);
 
 #define security_ops_sh05e_01_00_05     0xc0c68108
 #define n_security_ops_sh05e_01_00_05   140
@@ -131,7 +132,6 @@ static lsm_fix_t lsm_fixes_sh05e_01_00_05[] = {
   { 0xc0343c70, 0xc03434c0 },   // path_chroot
 };
 
-static int n_lsm_fixes_sh05e_01_00_05 = sizeof (lsm_fixes_sh05e_01_00_05) / sizeof (lsm_fixes_sh05e_01_00_05[0]);
 
 #define security_ops_sh05e_01_00_06     0xc0c68108
 #define n_security_ops_sh05e_01_00_06   140
@@ -146,7 +146,6 @@ static lsm_fix_t lsm_fixes_sh05e_01_00_06[] = {
   { 0xc0343d44, 0xc0343594 },   // path_chroot
 };
 
-static int n_lsm_fixes_sh05e_01_00_06 = sizeof (lsm_fixes_sh05e_01_00_06) / sizeof (lsm_fixes_sh05e_01_00_06[0]);
 
 #define security_ops_sh06e_01_00_01     0xc082d0b8
 #define n_security_ops_sh06e_01_00_01   140
@@ -166,7 +165,6 @@ static lsm_fix_t lsm_fixes_sh06e_01_00_01[] = {
   { 0xc0263180, 0xc026085c },   // bprm_set_creds
 };
 
-static int n_lsm_fixes_sh06e_01_00_01 = sizeof (lsm_fixes_sh06e_01_00_01) / sizeof (lsm_fixes_sh06e_01_00_01[0]);
 
 #define security_ops_sh06e_01_00_06     0xc082d0b8
 #define n_security_ops_sh06e_01_00_06   140
@@ -186,7 +184,6 @@ static lsm_fix_t lsm_fixes_sh06e_01_00_06[] = {
   { 0xc0263170, 0xc026084c },   // bprm_set_creds
 };
 
-static int n_lsm_fixes_sh06e_01_00_06 = sizeof (lsm_fixes_sh06e_01_00_06) / sizeof (lsm_fixes_sh06e_01_00_06[0]);
 
 #define security_ops_sh06e_01_00_07     0xc082d0b8
 #define n_security_ops_sh06e_01_00_07   140
@@ -206,7 +203,12 @@ static lsm_fix_t lsm_fixes_sh06e_01_00_07[] = {
   { 0xc02631c4, 0xc02608a0 },   // bprm_set_creds
 };
 
-static int n_lsm_fixes_sh06e_01_00_07 = sizeof (lsm_fixes_sh06e_01_00_07) / sizeof (lsm_fixes_sh06e_01_00_07[0]);
+
+#define unlock_module_patch_address_sh06e_01_00_07	0xc00bcc50
+
+static unsigned long int unlock_module_patch_data_sh06e_01_00_07[] = {
+  0xe3a00000,	// BL  <memcmp>   ->  MOV  R0 #0
+};
 
 #define security_ops_sh07e_01_00_03     0xc082d0b8
 #define n_security_ops_sh07e_01_00_03   140
@@ -226,7 +228,6 @@ static lsm_fix_t lsm_fixes_sh07e_01_00_03[] = {
   { 0xc026338c, 0xc0260a68 },   // bprm_set_creds
 };
 
-static int n_lsm_fixes_sh07e_01_00_03 = sizeof (lsm_fixes_sh07e_01_00_03) / sizeof (lsm_fixes_sh07e_01_00_03[0]);
 
 #define security_ops_sh09d_02_00_03     0xc0720c38
 #define n_security_ops_sh09d_02_00_03   174
@@ -258,7 +259,6 @@ static lsm_fix_t lsm_fixes_shl21_01_00_09[] = {
   { 0xc03425d8, 0xc0341d18 },   // socket_setsockopt
 };
 
-static int n_lsm_fixes_shl21_01_00_09 = sizeof (lsm_fixes_shl21_01_00_09) / sizeof (lsm_fixes_shl21_01_00_09[0]);
 
 #define security_ops_shl21_01_01_02     0xc071f0f8
 #define n_security_ops_shl21_01_01_02   174
@@ -277,9 +277,6 @@ static lsm_fix_t lsm_fixes_shl21_01_01_02[] = {
   { 0xc0218cf0, 0xc0218370 },   // socket_setsockopt
 };
 
-static int n_lsm_fixes_shl21_01_01_02 = sizeof (lsm_fixes_shl21_01_01_02) / sizeof (lsm_fixes_shl21_01_01_02[0]);
-
-static int n_lsm_fixes_sh09d_02_00_03 = sizeof (lsm_fixes_sh09d_02_00_03) / sizeof (lsm_fixes_sh09d_02_00_03[0]);
 
 bool
 unlock_lsm(void)
@@ -308,6 +305,28 @@ unlock_lsm(void)
 }
 
 static bool
+unlock_module(void)
+{
+  unsigned long int *p;
+  int count = 0;
+  int i;
+
+  if (!unlock_module_patch_address) {
+    return false;
+  }
+
+  p = backdoor_convert_to_mmaped_address((void *)unlock_module_patch_address);
+
+  for (i = 0; i < unlock_module_patch_data_size; i++) {
+    p[i] = unlock_module_patch_data[i];
+  }
+
+  printf("  kernel module is enabled.\n");
+
+  return true;
+}
+
+static bool
 do_unlock(void)
 {
   bool ret;
@@ -321,6 +340,10 @@ do_unlock(void)
 
   ret = unlock_lsm();
 
+  if (unlock_module_patch_address) {
+    ret = unlock_module() && ret;
+  }
+
   backdoor_close_mmap();
   return ret;
 }
@@ -333,98 +356,102 @@ main(int argc, char **argv)
     security_ops = security_ops_sbm203sh_s0024;
     n_security_ops = n_security_ops_sbm203sh_s0024;
     lsm_fixes = lsm_fixes_sbm203sh_s0024;
-    n_lsm_fixes = n_lsm_fixes_sbm203sh_s0024;
+    n_lsm_fixes = ARRAY_SIZE(lsm_fixes_sbm203sh_s0024);
     break;
 
   case DEVICE_SH02E_02_00_03:
     security_ops = security_ops_sh02e_02_00_03;
     n_security_ops = n_security_ops_sh02e_02_00_03;
     lsm_fixes = lsm_fixes_sh02e_02_00_03;
-    n_lsm_fixes = n_lsm_fixes_sh02e_02_00_03;
+    n_lsm_fixes = ARRAY_SIZE(lsm_fixes_sh02e_02_00_03);
     break;
 
   case DEVICE_SH04E_01_00_02:
     security_ops = security_ops_sh04e_01_00_02;
     n_security_ops = n_security_ops_sh04e_01_00_02;
     lsm_fixes = lsm_fixes_sh04e_01_00_02;
-    n_lsm_fixes = n_lsm_fixes_sh04e_01_00_02;
+    n_lsm_fixes = ARRAY_SIZE(lsm_fixes_sh04e_01_00_02);
     break;
 
   case DEVICE_SH04E_01_00_03:
     security_ops = security_ops_sh04e_01_00_03;
     n_security_ops = n_security_ops_sh04e_01_00_03;
     lsm_fixes = lsm_fixes_sh04e_01_00_03;
-    n_lsm_fixes = n_lsm_fixes_sh04e_01_00_03;
+    n_lsm_fixes = ARRAY_SIZE(lsm_fixes_sh04e_01_00_03);
     break;
 
   case DEVICE_SH04E_01_00_04:
     security_ops = security_ops_sh04e_01_00_04;
     n_security_ops = n_security_ops_sh04e_01_00_04;
     lsm_fixes = lsm_fixes_sh04e_01_00_04;
-    n_lsm_fixes = n_lsm_fixes_sh04e_01_00_04;
+    n_lsm_fixes = ARRAY_SIZE(lsm_fixes_sh04e_01_00_04);
     break;
 
   case DEVICE_SH05E_01_00_05:
     security_ops = security_ops_sh05e_01_00_05;
     n_security_ops = n_security_ops_sh05e_01_00_05;
     lsm_fixes = lsm_fixes_sh05e_01_00_05;
-    n_lsm_fixes = n_lsm_fixes_sh05e_01_00_05;
+    n_lsm_fixes = ARRAY_SIZE(lsm_fixes_sh05e_01_00_05);
     break;
 
   case DEVICE_SH05E_01_00_06:
     security_ops = security_ops_sh05e_01_00_06;
     n_security_ops = n_security_ops_sh05e_01_00_06;
     lsm_fixes = lsm_fixes_sh05e_01_00_06;
-    n_lsm_fixes = n_lsm_fixes_sh05e_01_00_06;
+    n_lsm_fixes = ARRAY_SIZE(lsm_fixes_sh05e_01_00_06);
     break;
 
   case DEVICE_SH09D_02_00_03:
     security_ops = security_ops_sh09d_02_00_03;
     n_security_ops = n_security_ops_sh09d_02_00_03;
     lsm_fixes = lsm_fixes_sh09d_02_00_03;
-    n_lsm_fixes = n_lsm_fixes_sh09d_02_00_03;
+    n_lsm_fixes = ARRAY_SIZE(lsm_fixes_sh09d_02_00_03);
     break;
 
   case DEVICE_SH06E_01_00_01:
     security_ops = security_ops_sh06e_01_00_01;
     n_security_ops = n_security_ops_sh06e_01_00_01;
     lsm_fixes = lsm_fixes_sh06e_01_00_01;
-    n_lsm_fixes = n_lsm_fixes_sh06e_01_00_01;
+    n_lsm_fixes = ARRAY_SIZE(lsm_fixes_sh06e_01_00_01);
     break;
 
   case DEVICE_SH06E_01_00_06:
     security_ops = security_ops_sh06e_01_00_06;
     n_security_ops = n_security_ops_sh06e_01_00_06;
     lsm_fixes = lsm_fixes_sh06e_01_00_06;
-    n_lsm_fixes = n_lsm_fixes_sh06e_01_00_06;
+    n_lsm_fixes = ARRAY_SIZE(lsm_fixes_sh06e_01_00_06);
     break;
 
   case DEVICE_SH06E_01_00_07:
     security_ops = security_ops_sh06e_01_00_07;
     n_security_ops = n_security_ops_sh06e_01_00_07;
     lsm_fixes = lsm_fixes_sh06e_01_00_07;
-    n_lsm_fixes = n_lsm_fixes_sh06e_01_00_07;
+    n_lsm_fixes = ARRAY_SIZE(lsm_fixes_sh06e_01_00_07);
+
+    unlock_module_patch_address = unlock_module_patch_address_sh06e_01_00_07;
+    unlock_module_patch_data = unlock_module_patch_data_sh06e_01_00_07;
+    unlock_module_patch_data_size = ARRAY_SIZE(unlock_module_patch_data_sh06e_01_00_07);
     break;
 
   case DEVICE_SH07E_01_00_03:
     security_ops = security_ops_sh07e_01_00_03;
     n_security_ops = n_security_ops_sh07e_01_00_03;
     lsm_fixes = lsm_fixes_sh07e_01_00_03;
-    n_lsm_fixes = n_lsm_fixes_sh07e_01_00_03;
+    n_lsm_fixes = ARRAY_SIZE(lsm_fixes_sh07e_01_00_03);
     break;
 
   case DEVICE_SHL21_01_00_09:
     security_ops = security_ops_shl21_01_00_09;
     n_security_ops = n_security_ops_shl21_01_00_09;
     lsm_fixes = lsm_fixes_shl21_01_00_09;
-    n_lsm_fixes = n_lsm_fixes_shl21_01_00_09;
+    n_lsm_fixes = ARRAY_SIZE(lsm_fixes_shl21_01_00_09);
     break;
 
   case DEVICE_SHL21_01_01_02:
     security_ops = security_ops_shl21_01_01_02;
     n_security_ops = n_security_ops_shl21_01_01_02;
     lsm_fixes = lsm_fixes_shl21_01_01_02;
-    n_lsm_fixes = n_lsm_fixes_shl21_01_01_02;
+    n_lsm_fixes = ARRAY_SIZE(lsm_fixes_shl21_01_01_02);
     break;
 
   default:
