@@ -180,6 +180,9 @@ main(int argc, char **argv)
 
   case DEVICE_SH05E_01_00_06:
     mmc_protect_part = mmc_protect_part_sh05e_01_00_06;
+    check_mmc_protect_part = check_mmc_protect_part_type2;
+    n_mmc_protect_part = n_mmc_protect_part_type2;
+    mmc_system_partition = MMC_SYSTEM_PARTITION_TYPE2;
     break;
 
   case DEVICE_SH06E_01_00_06:
