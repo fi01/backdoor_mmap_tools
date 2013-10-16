@@ -27,6 +27,8 @@ typedef struct _supported_device {
 static supported_device supported_devices[] = {
   { DEVICE_L01E_V20b, 0xc0daeab0, 0xc0132310, { 0xc0208564, 0xc020aec0, }, },
   { DEVICE_L02E_V20a, 0xc0c145a0, 0xc0149c4c, { 0xc020e604, 0xc02110d4, }, },
+  { DEVICE_P02E_10_0657, 0xc0dc8d60, 0xc013031c, { 0xc0267550, 0xc0269eac, }, },
+  { DEVICE_P02E_10_0798, 0xc0dc8d60, 0xc013041c, { 0xc0267650, 0xc0269fac, }, },
 };
 
 static int n_supported_devices = sizeof(supported_devices) / sizeof(supported_devices[0]);
