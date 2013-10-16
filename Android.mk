@@ -35,12 +35,12 @@ include $(BUILD_EXECUTABLE)
 include $(CLEAR_VARS)
 
 LOCAL_SRC_FILES := \
-  kallsyms.c \
   disable_ccsecurity.c \
   backdoor_mmap.c
 
 LOCAL_MODULE := disable_ccsecurity
 LOCAL_MODULE_TAGS := optional
+LOCAL_STATIC_LIBRARIES += libkallsyms
 LOCAL_STATIC_LIBRARIES += libdevice_database
 LOCAL_STATIC_LIBRARIES += libcutils libc
 

