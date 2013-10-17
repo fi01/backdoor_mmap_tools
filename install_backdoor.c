@@ -41,6 +41,7 @@ static supported_device supported_devices[] = {
   { DEVICE_P02E_10_0657,            0x80208000, 0xc011c6c8 },
   { DEVICE_P02E_10_0659,            0x80208000, 0xc011c6c8 },
   { DEVICE_P02E_10_0691,            0x80208000, 0xc011c6c8 },
+  { DEVICE_P02E_10_0733,            0x80208000, 0xc011c6d8 },
   { DEVICE_P02E_10_0767,            0x80208000, 0xc011c6e8 },
   { DEVICE_P02E_10_0798,            0x80208000, 0xc011c7c8 },
   { DEVICE_SBM203SH_S0024,          0x80208000, 0xc00f0e68 },
