@@ -166,6 +166,25 @@ static lsm_fix_t lsm_fixes_sh06e_01_00_01[] = {
 };
 
 
+#define security_ops_sh06e_01_00_05     0xc082d0b8
+#define n_security_ops_sh06e_01_00_05   140
+
+static lsm_fix_t lsm_fixes_sh06e_01_00_05[] = {
+  { 0xc0262828, 0xc02603dc },   // ptrace_access_check
+  { 0xc0262830, 0xc0260474 },   // ptrace_traceme
+  { 0xc0262838, 0xc0262618 },   // path_link
+  { 0xc0262840, 0xc0260d84 },   // task_fix_setuid
+  { 0xc02628d8, 0xc0262630 },   // path_chmod
+  { 0xc026296c, 0xc0262520 },   // sb_umount
+  { 0xc02629d8, 0xc0262694 },   // dentry_open
+  { 0xc0262d74, 0xc0262640 },   // path_chroot
+  { 0xc0262df4, 0xc0262528 },   // sb_pivotroot
+  { 0xc0262e74, 0xc0262610 },   // path_symlink
+  { 0xc0262f88, 0xc0262518 },   // sb_mount
+  { 0xc0263160, 0xc026083c },   // bprm_set_creds
+};
+
+
 #define security_ops_sh06e_01_00_06     0xc082d0b8
 #define n_security_ops_sh06e_01_00_06   140
 
@@ -413,6 +432,13 @@ main(int argc, char **argv)
     n_security_ops = n_security_ops_sh06e_01_00_01;
     lsm_fixes = lsm_fixes_sh06e_01_00_01;
     n_lsm_fixes = ARRAY_SIZE(lsm_fixes_sh06e_01_00_01);
+    break;
+
+  case DEVICE_SH06E_01_00_05:
+    security_ops = security_ops_sh06e_01_00_05;
+    n_security_ops = n_security_ops_sh06e_01_00_05;
+    lsm_fixes = lsm_fixes_sh06e_01_00_05;
+    n_lsm_fixes = ARRAY_SIZE(lsm_fixes_sh06e_01_00_05);
     break;
 
   case DEVICE_SH06E_01_00_06:
