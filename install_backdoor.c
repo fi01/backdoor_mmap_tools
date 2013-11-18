@@ -32,6 +32,7 @@ typedef struct _supported_device {
 } supported_device;
 
 static supported_device supported_devices[] = {
+  { DEVICE_F10D_V10R42A,            0x80008000, 0xc00f0fe4 },
   { DEVICE_HTL21_1_29_970_1,        0x80608000, 0xc010b728 },
   { DEVICE_HTL21_1_36_970_1,        0x80608000, 0xc010baa0 },
   { DEVICE_HTL22_2_15_970_1,        0x80608000, 0xc0136854 },
