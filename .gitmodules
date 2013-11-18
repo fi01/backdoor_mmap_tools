@@ -19,3 +19,6 @@
 [submodule "libkallsyms"]
 	path = libkallsyms
 	url = https://github.com/android-rooting-tools/libkallsyms.git
+[submodule "libput_user_exploit"]
+	path = libput_user_exploit
+	url = https://github.com/fi01/libput_user_exploit.git

