@@ -28,8 +28,6 @@
 
 typedef struct _supported_device {
   device_id_t device_id;
-  unsigned long int kernel_phys_offset;
-  unsigned long int vmalloc_exec_address;
 
   unsigned long int remap_pfn_range_end_op;
   unsigned long int security_remap_pfn_range_address;
@@ -37,47 +35,8 @@ typedef struct _supported_device {
 } supported_device;
 
 static supported_device supported_devices[] = {
-  { DEVICE_F07E_V19R38A,            0x80208000, 0xc012fd64 },
-  { DEVICE_F07E_V20R39D,            0x80208000, 0xc012fd84, 0xc0f6792c, 0xc027eee8 },
-  { DEVICE_F07E_V21R40B,            0x80208000, 0xc012fd84, 0xc0f6792c, 0xc027eee8 },
-  { DEVICE_F10D_V10R42A,            0x80008000, 0xc00f0fe4 },
-  { DEVICE_HTL21_1_29_970_1,        0x80608000, 0xc010b728 },
-  { DEVICE_HTL21_1_36_970_1,        0x80608000, 0xc010baa0 },
-  { DEVICE_HTL22_2_15_970_1,        0x80608000, 0xc0136854 },
-  { DEVICE_IS17SH_01_00_04,         0x00208000, 0xc0212b70 },
-  { DEVICE_L01E_V20b,               0x80208000, 0xc011e860 },
-  { DEVICE_L01F_V10c,               0x00008000, 0xc01521dc },
-  { DEVICE_L02E_V20a,               0x80208000, 0xc01344fc },
-  { DEVICE_LT26W_6_2_B_0_200,       0x40208000, 0xc0143f98 },
-  { DEVICE_LT29I_9_1_B_0_411,       0x80208000, 0xc01177e0 },
-  { DEVICE_N03E_A7202001,           0x80208000, 0xc0112694 },
-  { DEVICE_N03E_A7202201,           0x80208000, 0xc0112694 },
-  { DEVICE_P02E_10_0657,            0x80208000, 0xc011c6c8 },
-  { DEVICE_P02E_10_0659,            0x80208000, 0xc011c6c8 },
-  { DEVICE_P02E_10_0691,            0x80208000, 0xc011c6c8 },
-  { DEVICE_P02E_10_0733,            0x80208000, 0xc011c6d8 },
-  { DEVICE_P02E_10_0767,            0x80208000, 0xc011c6e8 },
-  { DEVICE_P02E_10_0798,            0x80208000, 0xc011c7c8 },
-  { DEVICE_SBM203SH_S0024,          0x80208000, 0xc00f0e68 },
-  { DEVICE_SH02E_02_00_03,          0x80208000, 0xc00f0e84 },
-  { DEVICE_SH04E_01_00_02,          0x80208000, 0xc00f10d4 },
-  { DEVICE_SH04E_01_00_03,          0x80208000, 0xc00f1204 },
-  { DEVICE_SH04E_01_00_04,          0x80208000, 0xc00f121c },
-  { DEVICE_SH05E_01_00_05,          0x80208000, 0xc01fd520 },
-  { DEVICE_SH05E_01_00_06,          0x80208000, 0xc01fd55c },
-  { DEVICE_SH06E_01_00_01,          0x80208000, 0xc011a190 },
-  { DEVICE_SH06E_01_00_05,          0x80208000, 0xc011a170 },
-  { DEVICE_SH06E_01_00_06,          0x80208000, 0xc011a180 },
-  { DEVICE_SH06E_01_00_07,          0x80208000, 0xc011a1d4 },
-  { DEVICE_SH07E_01_00_03,          0x80208000, 0xc011a39c },
-  { DEVICE_SH09D_02_00_03,          0x80208000, 0xc00ef128 },
-  { DEVICE_SHL21_01_00_09,          0x80208000, 0xc01fc498 },
-  { DEVICE_SHL21_01_01_02,          0x80208000, 0xc00ef528 },
-  { DEVICE_SC04E_MDI,               0x80208000, 0xc01206d8 },
-  { DEVICE_SC04E_MF1,               0x80208000, 0xc0120740 },
-  { DEVICE_SC04E_MF2,               0x80208000, 0xc012073c },
-  { DEVICE_SC04E_MG2,               0x80208000, 0xc0120744 },
-  { DEVICE_SOL21_9_1_D_0_395,       0x80208000, 0xc011aeec },
+  { DEVICE_F07E_V20R39D,            0xc0f6792c, 0xc027eee8 },
+  { DEVICE_F07E_V21R40B,            0xc0f6792c, 0xc027eee8 },
 };
 
 static int n_supported_devices = sizeof(supported_devices) / sizeof(supported_devices[0]);
@@ -160,26 +119,29 @@ setup_variables(void)
 
   kernel_phys_offset = 0;
   vmalloc_exec = 0;
+  remap_pfn_range_end_op = 0;
+  security_remap_pfn_range_address = 0;
 
   for (i = 0; i < n_supported_devices; i++) {
     if (supported_devices[i].device_id == device_id) {
-      kernel_phys_offset = supported_devices[i].kernel_phys_offset;
-      vmalloc_exec = (void *)supported_devices[i].vmalloc_exec_address;
-
       remap_pfn_range_end_op = supported_devices[i].remap_pfn_range_end_op;
       security_remap_pfn_range_address = supported_devices[i].security_remap_pfn_range_address;
     }
   }
 
+  kernel_phys_offset = device_get_symbol_address(DEVICE_SYMBOL(kernel_physical_offset));
   if (!kernel_phys_offset) {
     kernel_phys_offset = find_kernel_text_from_iomem();
+#if 0
     if (kernel_phys_offset) {
       printf("Kernel physical offset is detected as 0x%08lx from /proc/iomem.\n"
              "If it crashed with this address, setup correct address\n",
              kernel_phys_offset);
     }
+#endif
   }
 
+  vmalloc_exec = (void *)device_get_symbol_address(DEVICE_SYMBOL(vmalloc_exec));
   if (!vmalloc_exec) {
     vmalloc_exec = (void *)kallsyms_get_symbol_address("vmalloc_exec");
   }
