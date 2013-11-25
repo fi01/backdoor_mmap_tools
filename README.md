@@ -23,6 +23,10 @@ How to use
 
 	`run_autoexec`
 
+* Fix CVE-2013-6282 vulnerability with custom __get/put_user handlers.
+
+	`fix_cve_2013_6282`
+
 * Unlock fjsec LSM for Fujitsu devices.
 
 	`unlock_lsm_fjsec`
