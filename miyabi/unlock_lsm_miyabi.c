@@ -222,12 +222,12 @@ static lsm_fix_t lsm_fixes_sh06e_01_00_07[] = {
   { 0xc02631c4, 0xc02608a0 },   // bprm_set_creds
 };
 
-
 #define unlock_module_patch_address_sh06e_01_00_07	0xc00bcc50
 
 static unsigned long int unlock_module_patch_data_sh06e_01_00_07[] = {
   0xe3a00000,	// BL  <memcmp>   ->  MOV  R0 #0
 };
+
 
 #define security_ops_sh07e_01_00_03     0xc082d0b8
 #define n_security_ops_sh07e_01_00_03   140
@@ -294,6 +294,12 @@ static lsm_fix_t lsm_fixes_shl21_01_01_02[] = {
   { 0xc021878c, 0xc021818c },   // path_chroot
   { 0xc0218530, 0xc02165ac },   // task_fix_setuid
   { 0xc0218cf0, 0xc0218370 },   // socket_setsockopt
+};
+
+#define unlock_module_patch_address_shl21_01_01_02	0xc00aaf48
+
+static unsigned long int unlock_module_patch_data_shl21_01_01_02[] = {
+  0xe3a00000,	// BL  <memcmp>   ->  MOV  R0 #0
 };
 
 
@@ -478,6 +484,10 @@ main(int argc, char **argv)
     n_security_ops = n_security_ops_shl21_01_01_02;
     lsm_fixes = lsm_fixes_shl21_01_01_02;
     n_lsm_fixes = ARRAY_SIZE(lsm_fixes_shl21_01_01_02);
+
+    unlock_module_patch_address = unlock_module_patch_address_shl21_01_01_02;
+    unlock_module_patch_data = unlock_module_patch_data_shl21_01_01_02;
+    unlock_module_patch_data_size = ARRAY_SIZE(unlock_module_patch_data_shl21_01_01_02);
     break;
 
   default:
