@@ -14,10 +14,7 @@
 #include "device_database/device_database.h"
 #include "backdoor_mmap.h"
 #include "libkallsyms/kallsyms_in_memory.h"
-
-#define SECURITY_NAME_MAX       10
-
-#define SECURITY_OPS_OFFSET     ((sizeof (security_ops_tag) + 3) / 4)
+#include "fjsec/fjsec.h"
 
 #define NUM_SECURITY_OPS        149
 
@@ -25,8 +22,6 @@
 #define DEFAULT_CAP_FUNCTION	"cap_syslog"
 #define CHECK_MOUNT_FUNCTION    "fjsec_sb_mount"
 #define CHECK_UMOUNT_FUNCTION   "fjsec_sb_umount"
-
-static const char security_ops_tag[SECURITY_NAME_MAX + 1] = "fjsec";
 
 bool
 unlock_mount(void)
@@ -39,13 +34,15 @@ unlock_mount(void)
   int count = 0;
   int i;
 
-  security_ops = memmem((void *)BACKDOOR_MMAP_ADDRESS, BACKDOOR_MMAP_SIZE, security_ops_tag, sizeof security_ops_tag);
+  security_ops = get_fjsec_security_ops();
   if (security_ops == NULL) {
     printf("security_ops: not found\n");
     return false;
   }
 
-  printf("security_ops = %p\n", backdoor_convert_to_kernel_address(security_ops));
+  printf("security_ops = %p\n", security_ops);
+
+  security_ops = backdoor_convert_to_mmaped_address(security_ops);
 
   info = kallsyms_in_memory_init((void *)BACKDOOR_MMAP_ADDRESS, BACKDOOR_MMAP_SIZE);
   if (info == NULL) {

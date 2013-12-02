@@ -3,6 +3,7 @@ LOCAL_PATH := $(call my-dir)
 include $(CLEAR_VARS)
 
 LOCAL_SRC_FILES := \
+  fjsec.c \
   unlock_lsm_fjsec.c \
   ../ptmx.c \
   ../backdoor_mmap.c
@@ -20,6 +21,7 @@ include $(BUILD_EXECUTABLE)
 include $(CLEAR_VARS)
 
 LOCAL_SRC_FILES := \
+  fjsec.c \
   unlock_mount_fjsec.c \
   ../ptmx.c \
   ../backdoor_mmap.c
