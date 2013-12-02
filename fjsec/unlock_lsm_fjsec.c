@@ -177,7 +177,7 @@ unlock_lsm(void)
 
   printf("  %d functions are fixed.\n", count);
 
-  count = modify_functions(info);
+  count += modify_functions(info);
   printf("  %d functions are modified.\n", count);
 
   //kallsyms_in_memory_free(info);
