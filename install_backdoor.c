@@ -26,21 +26,6 @@
 #ifdef USE_ASM_DO_MAP
 #define sizeof_do_mmap()  sizeof (do_mmap)
 
-typedef struct _supported_device {
-  device_id_t device_id;
-
-  unsigned long int remap_pfn_range_end_op;
-  unsigned long int security_remap_pfn_range_address;
-
-} supported_device;
-
-static supported_device supported_devices[] = {
-  { DEVICE_F07E_V20R39D,            0xc0f6792c, 0xc027eee8 },
-  { DEVICE_F07E_V21R40B,            0xc0f6792c, 0xc027eee8 },
-};
-
-static int n_supported_devices = sizeof(supported_devices) / sizeof(supported_devices[0]);
-
 static unsigned long int kernel_phys_offset;
 static void *(*vmalloc_exec)(unsigned long size);
 static int (*remap_pfn_range)(struct vm_area_struct *, unsigned long addr,
@@ -122,13 +107,6 @@ setup_variables(void)
   remap_pfn_range_end_op = 0;
   security_remap_pfn_range_address = 0;
 
-  for (i = 0; i < n_supported_devices; i++) {
-    if (supported_devices[i].device_id == device_id) {
-      remap_pfn_range_end_op = supported_devices[i].remap_pfn_range_end_op;
-      security_remap_pfn_range_address = supported_devices[i].security_remap_pfn_range_address;
-    }
-  }
-
   kernel_phys_offset = device_get_symbol_address(DEVICE_SYMBOL(kernel_physical_offset));
   if (!kernel_phys_offset) {
     kernel_phys_offset = find_kernel_text_from_iomem();
@@ -139,11 +117,44 @@ setup_variables(void)
              kernel_phys_offset);
     }
 #endif
+
+#ifdef HAS_SET_SYMBOL_ADDRESS
+    device_set_symbol_address(DEVICE_SYMBOL(kernel_physical_offset), kernel_phys_offset);
+#endif /* HAS_SET_SYMBOL_ADDRESS */
   }
 
   vmalloc_exec = (void *)device_get_symbol_address(DEVICE_SYMBOL(vmalloc_exec));
   if (!vmalloc_exec) {
     vmalloc_exec = (void *)kallsyms_get_symbol_address("vmalloc_exec");
+
+#ifdef HAS_SET_SYMBOL_ADDRESS
+    if (vmalloc_exec) {
+      device_set_symbol_address(DEVICE_SYMBOL(vmalloc_exec), (unsigned long int)vmalloc_exec);
+    }
+#endif /* HAS_SET_SYMBOL_ADDRESS */
+  }
+
+  remap_pfn_range_end_op = device_get_symbol_address(DEVICE_SYMBOL(remap_pfn_range_end_op));
+
+  if (remap_pfn_range_end_op) {
+    security_remap_pfn_range_address = device_get_symbol_address(DEVICE_SYMBOL(security_remap_pfn_range));
+    if (!security_remap_pfn_range_address) {
+      security_remap_pfn_range_address = kallsyms_get_symbol_address("security_remap_pfn_range");
+
+#ifdef HAS_SET_SYMBOL_ADDRESS
+      if (security_remap_pfn_range_address) {
+	device_set_symbol_address(DEVICE_SYMBOL(security_remap_pfn_range), security_remap_pfn_range_address);
+      }
+#endif /* HAS_SET_SYMBOL_ADDRESS */
+    }
+
+    if (security_remap_pfn_range_address) {
+      printf("Custom remap_pfn_range(): Enabled\n");
+    }
+    else {
+      remap_pfn_range_end_op = 0;
+      printf("Custom remap_pfn_range(): Disabled\n");
+    }
   }
 
   if (kernel_phys_offset && vmalloc_exec) {
@@ -211,7 +222,7 @@ install_mmap(void)
 
   memcpy(func_address, do_mmap, func_size);
 
-  if (security_remap_pfn_range_address) {
+  if (remap_pfn_range_end_op) {
     custom_remap_pfn_range_param_t param;
 
     param.remap_pfn_range_address = (unsigned long)remap_pfn_range;
