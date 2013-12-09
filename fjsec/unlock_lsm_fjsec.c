@@ -180,7 +180,7 @@ unlock_lsm(void)
   count += modify_functions(info);
   printf("  %d functions are modified.\n", count);
 
-  //kallsyms_in_memory_free(info);
+  kallsyms_in_memory_free(info);
 
   return count > 0;
 }

@@ -83,7 +83,7 @@ unlock_mount(void)
 
   printf("  %d functions are fixed.\n", count);
 
-  //kallsyms_in_memory_free(info);
+  kallsyms_in_memory_free(info);
 
   return count > 0;
 }
