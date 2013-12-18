@@ -11,8 +11,8 @@ LOCAL_SRC_FILES := \
 LOCAL_MODULE := unlock_sec_sc04e
 LOCAL_MODULE_TAGS := optional
 LOCAL_C_INCLUDES += .
-LOCAL_FORCE_STATIC_EXECUTABLE := true
 LOCAL_STATIC_LIBRARIES += libdevice_database
 LOCAL_STATIC_LIBRARIES += libcutils libc
+LOCAL_LDFLAGS += -static
 
 include $(BUILD_EXECUTABLE)

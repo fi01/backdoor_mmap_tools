@@ -14,6 +14,7 @@ LOCAL_MODULE := run_root_shell
 LOCAL_MODULE_TAGS := optional
 LOCAL_STATIC_LIBRARIES += libdevice_database
 LOCAL_STATIC_LIBRARIES += libcutils libc
+LOCAL_LDFLAGS += -static
 
 include $(BUILD_EXECUTABLE)
 
@@ -29,6 +30,7 @@ LOCAL_MODULE := reset_security_ops
 LOCAL_MODULE_TAGS := optional
 LOCAL_STATIC_LIBRARIES += libdevice_database
 LOCAL_STATIC_LIBRARIES += libcutils libc
+LOCAL_LDFLAGS += -static
 
 include $(BUILD_EXECUTABLE)
 
@@ -43,6 +45,7 @@ LOCAL_MODULE_TAGS := optional
 LOCAL_STATIC_LIBRARIES += libkallsyms
 LOCAL_STATIC_LIBRARIES += libdevice_database
 LOCAL_STATIC_LIBRARIES += libcutils libc
+LOCAL_LDFLAGS += -static
 
 include $(BUILD_EXECUTABLE)
 
@@ -59,6 +62,7 @@ LOCAL_MODULE_TAGS := optional
 LOCAL_STATIC_LIBRARIES += libkallsyms
 LOCAL_STATIC_LIBRARIES += libdevice_database
 LOCAL_STATIC_LIBRARIES += libcutils libc
+LOCAL_LDFLAGS += -static
 
 include $(BUILD_EXECUTABLE)
 
