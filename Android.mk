@@ -74,6 +74,7 @@ LOCAL_SRC_FILES := \
   kallsyms.c \
   ptmx.c \
   mm.c \
+  mmap.c \
   build_remap_pfn_range.c
 
 LOCAL_MODULE := install_backdoor
