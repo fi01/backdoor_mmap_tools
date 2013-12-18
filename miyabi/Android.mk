@@ -12,6 +12,7 @@ LOCAL_MODULE := unlock_lsm_miyabi
 LOCAL_MODULE_TAGS := optional
 LOCAL_C_INCLUDES += .
 LOCAL_STATIC_LIBRARIES += libdevice_database
+LOCAL_STATIC_LIBRARIES += libkallsyms
 LOCAL_STATIC_LIBRARIES += libcutils libc
 LOCAL_LDFLAGS += -static
 

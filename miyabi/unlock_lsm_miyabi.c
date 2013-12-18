@@ -13,10 +13,13 @@
 
 #include "device_database/device_database.h"
 #include "backdoor_mmap.h"
+#include "libkallsyms/kallsyms_in_memory.h"
 
 #define ARRAY_SIZE(x)           (sizeof (x) / sizeof (x[0]))
 
 #define SECURITY_OPS_OFFSET     3
+
+#define MAX_LSM_FIXES           32
 
 
 typedef struct {
@@ -32,7 +35,6 @@ int n_lsm_fixes;
 unsigned long int unlock_module_patch_address = 0;
 unsigned long int *unlock_module_patch_data = NULL;
 int unlock_module_patch_data_size = 0;
-
 
 #define security_ops_sbm203sh_s0024     0xc0820278
 #define n_security_ops_sbm203sh_s0024   140
@@ -351,6 +353,239 @@ unlock_module(void)
   return true;
 }
 
+#define MIYABI_FUNC_LSM_SYMBOL_NAME(n)  DEVICE_SYMBOL(miyabi.lsm_fixes.lsm_func.n)
+#define MIYABI_FUNC_CAP_SYMBOL_NAME(n)  DEVICE_SYMBOL(miyabi.lsm_fixes.cap_func.n)
+
+static device_symbol_t
+get_miyabi_lsm_func_symbol(int i)
+{
+  static device_symbol_t lsm_func_symbol[] = {
+    MIYABI_FUNC_LSM_SYMBOL_NAME(1),
+    MIYABI_FUNC_LSM_SYMBOL_NAME(2),
+    MIYABI_FUNC_LSM_SYMBOL_NAME(3),
+    MIYABI_FUNC_LSM_SYMBOL_NAME(4),
+    MIYABI_FUNC_LSM_SYMBOL_NAME(5),
+    MIYABI_FUNC_LSM_SYMBOL_NAME(6),
+    MIYABI_FUNC_LSM_SYMBOL_NAME(7),
+    MIYABI_FUNC_LSM_SYMBOL_NAME(8),
+    MIYABI_FUNC_LSM_SYMBOL_NAME(9),
+    MIYABI_FUNC_LSM_SYMBOL_NAME(10),
+    MIYABI_FUNC_LSM_SYMBOL_NAME(11),
+    MIYABI_FUNC_LSM_SYMBOL_NAME(12),
+    MIYABI_FUNC_LSM_SYMBOL_NAME(13),
+    MIYABI_FUNC_LSM_SYMBOL_NAME(14),
+    MIYABI_FUNC_LSM_SYMBOL_NAME(15),
+    MIYABI_FUNC_LSM_SYMBOL_NAME(16),
+    MIYABI_FUNC_LSM_SYMBOL_NAME(17),
+    MIYABI_FUNC_LSM_SYMBOL_NAME(18),
+    MIYABI_FUNC_LSM_SYMBOL_NAME(19),
+    MIYABI_FUNC_LSM_SYMBOL_NAME(20),
+    MIYABI_FUNC_LSM_SYMBOL_NAME(21),
+    MIYABI_FUNC_LSM_SYMBOL_NAME(22),
+    MIYABI_FUNC_LSM_SYMBOL_NAME(23),
+    MIYABI_FUNC_LSM_SYMBOL_NAME(24),
+    MIYABI_FUNC_LSM_SYMBOL_NAME(25),
+    MIYABI_FUNC_LSM_SYMBOL_NAME(26),
+    MIYABI_FUNC_LSM_SYMBOL_NAME(27),
+    MIYABI_FUNC_LSM_SYMBOL_NAME(28),
+    MIYABI_FUNC_LSM_SYMBOL_NAME(29),
+    MIYABI_FUNC_LSM_SYMBOL_NAME(30),
+    MIYABI_FUNC_LSM_SYMBOL_NAME(31),
+    MIYABI_FUNC_LSM_SYMBOL_NAME(32),
+  };
+
+  if (ARRAY_SIZE(lsm_func_symbol) != MAX_LSM_FIXES) {
+    printf("size mismatch for MIYABI_FUNC_LSM_SYMBOL_NAME!\n");
+    return NULL;
+  }
+
+  if (i >= MAX_LSM_FIXES) {
+    printf("Too many lsm_fixes!\n");
+    return NULL;
+  }
+
+  return lsm_func_symbol[i];
+}
+
+static device_symbol_t
+get_miyabi_cap_func_symbol(int i)
+{
+  static device_symbol_t cap_func_symbol[] = {
+    MIYABI_FUNC_CAP_SYMBOL_NAME(1),
+    MIYABI_FUNC_CAP_SYMBOL_NAME(2),
+    MIYABI_FUNC_CAP_SYMBOL_NAME(3),
+    MIYABI_FUNC_CAP_SYMBOL_NAME(4),
+    MIYABI_FUNC_CAP_SYMBOL_NAME(5),
+    MIYABI_FUNC_CAP_SYMBOL_NAME(6),
+    MIYABI_FUNC_CAP_SYMBOL_NAME(7),
+    MIYABI_FUNC_CAP_SYMBOL_NAME(8),
+    MIYABI_FUNC_CAP_SYMBOL_NAME(9),
+    MIYABI_FUNC_CAP_SYMBOL_NAME(10),
+    MIYABI_FUNC_CAP_SYMBOL_NAME(11),
+    MIYABI_FUNC_CAP_SYMBOL_NAME(12),
+    MIYABI_FUNC_CAP_SYMBOL_NAME(13),
+    MIYABI_FUNC_CAP_SYMBOL_NAME(14),
+    MIYABI_FUNC_CAP_SYMBOL_NAME(15),
+    MIYABI_FUNC_CAP_SYMBOL_NAME(16),
+    MIYABI_FUNC_CAP_SYMBOL_NAME(17),
+    MIYABI_FUNC_CAP_SYMBOL_NAME(18),
+    MIYABI_FUNC_CAP_SYMBOL_NAME(19),
+    MIYABI_FUNC_CAP_SYMBOL_NAME(20),
+    MIYABI_FUNC_CAP_SYMBOL_NAME(21),
+    MIYABI_FUNC_CAP_SYMBOL_NAME(22),
+    MIYABI_FUNC_CAP_SYMBOL_NAME(23),
+    MIYABI_FUNC_CAP_SYMBOL_NAME(24),
+    MIYABI_FUNC_CAP_SYMBOL_NAME(25),
+    MIYABI_FUNC_CAP_SYMBOL_NAME(26),
+    MIYABI_FUNC_CAP_SYMBOL_NAME(27),
+    MIYABI_FUNC_CAP_SYMBOL_NAME(28),
+    MIYABI_FUNC_CAP_SYMBOL_NAME(29),
+    MIYABI_FUNC_CAP_SYMBOL_NAME(30),
+    MIYABI_FUNC_CAP_SYMBOL_NAME(31),
+    MIYABI_FUNC_CAP_SYMBOL_NAME(32),
+  };
+
+  if (ARRAY_SIZE(cap_func_symbol) != MAX_LSM_FIXES) {
+    printf("size mismatch for MIYABI_FUNC_LSM_SYMBOL_NAME!\n");
+    return NULL;
+  }
+
+  if (i >= MAX_LSM_FIXES) {
+    printf("Too many lsm_fixes!\n");
+    return NULL;
+  }
+
+  return cap_func_symbol[i];
+}
+
+static bool
+detect_miyabi_lsm(void)
+{
+  kallsyms *info;
+  unsigned long int miyabi_security_ops;
+  unsigned long int *p;
+  bool ret = false;
+  int count;
+  int i;
+
+  info = kallsyms_in_memory_init((void *)BACKDOOR_MMAP_ADDRESS, BACKDOOR_MMAP_SIZE);
+  if (info == NULL) {
+    printf("kallsyms_in_memory_init(): failed\n");
+    return false;
+  }
+
+  miyabi_security_ops = kallsyms_in_memory_lookup_name(info, "miyabi_security_ops");
+  if (!miyabi_security_ops) {
+    goto error_exit;
+  }
+
+  printf("Found: miyabi_security_ops = 0x%08x\n", miyabi_security_ops);
+
+  p = backdoor_convert_to_mmaped_address((void *)miyabi_security_ops);
+  count = 0;
+
+  for (i = SECURITY_OPS_OFFSET; p[i]; i++) {
+    const char *name = kallsyms_in_memory_lookup_address(info, p[i]);
+    if (!name) {
+      break;
+    }
+
+    if (strncmp(name, "miyabi_", 7) == 0) {
+      unsigned long int cap_address;
+      char cap_name[256];
+
+      if (snprintf(cap_name, sizeof (cap_name) - 1, "cap_%s", name + 7) >= sizeof (cap_name)) {
+        printf("Buffer is too short for %s\n", name);
+	goto error_exit;
+      }
+      cap_address = kallsyms_in_memory_lookup_name(info, cap_name);
+
+      if (!cap_address) {
+        printf("%s: not found for fix %s\n", cap_name, name);
+	goto error_exit;
+      }
+
+      printf("#%d: 0x%08x <%s> -> 0x%08x <%s>\n", count, p[i], name, cap_address, cap_name);
+
+      device_set_symbol_address(get_miyabi_lsm_func_symbol(count), p[i]);
+      device_set_symbol_address(get_miyabi_cap_func_symbol(count), cap_address);
+
+      count++;
+    }
+    else if (strncmp(name, "cap_", 4) != 0) {
+      printf("%s: 0x%08x: unknown symbol\n", name, p[i]);
+      goto error_exit;
+    }
+  }
+
+  if (count) {
+    device_set_symbol_address(DEVICE_SYMBOL(miyabi_security_ops), miyabi_security_ops);
+    device_set_symbol_address(DEVICE_SYMBOL(miyabi.n_security_ops), i);
+    device_set_symbol_address(DEVICE_SYMBOL(miyabi.n_lsm_fixes), count);
+
+    ret = true;
+  }
+
+error_exit:
+  kallsyms_in_memory_free(info);
+  return ret;
+}
+
+static bool
+setup_param_from_database(void)
+{
+  static lsm_fix_t fix_table[MAX_LSM_FIXES];
+  int i;
+
+  if (security_ops
+   && n_security_ops
+   && lsm_fixes
+   && n_lsm_fixes) {
+     return true;
+  }
+
+  security_ops = device_get_symbol_address(DEVICE_SYMBOL(miyabi_security_ops));
+  if (!security_ops) {
+    detect_miyabi_lsm();
+
+    security_ops = device_get_symbol_address(DEVICE_SYMBOL(miyabi_security_ops));
+  }
+
+  if (security_ops) {
+    n_security_ops = device_get_symbol_address(DEVICE_SYMBOL(miyabi.n_security_ops));
+    n_lsm_fixes = device_get_symbol_address(DEVICE_SYMBOL(miyabi.n_lsm_fixes));
+
+    printf("miyabi_security_ops = 0x%08x\n", security_ops);
+    printf("n_security_ops = %d\n", n_security_ops);
+    printf("n_lsm_fixes = %d\n", n_lsm_fixes);
+
+    if (n_security_ops && n_lsm_fixes) {
+      if (n_lsm_fixes >= MAX_LSM_FIXES) {
+        printf("Too many lsm_fixes!\n");
+	return false;
+      }
+
+      for (i = 0; i < n_lsm_fixes; i++) {
+	fix_table[i].lsm_func = device_get_symbol_address(get_miyabi_lsm_func_symbol(i));
+	fix_table[i].cap_func = device_get_symbol_address(get_miyabi_cap_func_symbol(i));
+
+	if (!fix_table[i].lsm_func || !fix_table[i].cap_func) {
+	  printf("fix_table[%d]: failed to get from DB!\.");
+	  return false;
+	}
+
+	printf("#%d: 0x%08x -> 0x%8x\n", i, fix_table[i].lsm_func, fix_table[i].cap_func);
+      }
+
+      lsm_fixes = fix_table;
+
+      return true;
+    }
+  }
+
+  return false;
+}
+
 static bool
 do_unlock(void)
 {
@@ -359,6 +594,14 @@ do_unlock(void)
   if (!backdoor_open_mmap()) {
     printf("Failed to mmap due to %s.\n", strerror(errno));
     printf("Run 'install_backdoor' first\n");
+
+    return false;
+  }
+
+  if (!setup_param_from_database()) {
+    backdoor_close_mmap();
+
+    print_reason_device_not_supported();
 
     return false;
   }
@@ -491,8 +734,10 @@ main(int argc, char **argv)
     break;
 
   default:
-    print_reason_device_not_supported();
-    return 1;
+    security_ops = 0;
+    n_security_ops = 0;
+    lsm_fixes = NULL;
+    n_lsm_fixes = 0;
   }
 
   if (!do_unlock()) {
