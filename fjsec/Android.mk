@@ -11,10 +11,10 @@ LOCAL_SRC_FILES := \
 LOCAL_MODULE := unlock_lsm_fjsec
 LOCAL_MODULE_TAGS := optional
 LOCAL_C_INCLUDES += .
-LOCAL_FORCE_STATIC_EXECUTABLE := true
 LOCAL_STATIC_LIBRARIES += libdevice_database
 LOCAL_STATIC_LIBRARIES += libkallsyms
 LOCAL_STATIC_LIBRARIES += libcutils libc
+LOCAL_LDFLAGS += -static
 
 include $(BUILD_EXECUTABLE)
 
@@ -29,9 +29,9 @@ LOCAL_SRC_FILES := \
 LOCAL_MODULE := unlock_mount_fjsec
 LOCAL_MODULE_TAGS := optional
 LOCAL_C_INCLUDES += .
-LOCAL_FORCE_STATIC_EXECUTABLE := true
 LOCAL_STATIC_LIBRARIES += libdevice_database
 LOCAL_STATIC_LIBRARIES += libkallsyms
 LOCAL_STATIC_LIBRARIES += libcutils libc
+LOCAL_LDFLAGS += -static
 
 include $(BUILD_EXECUTABLE)
