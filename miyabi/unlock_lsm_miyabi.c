@@ -570,7 +570,7 @@ setup_param_from_database(void)
 	fix_table[i].cap_func = device_get_symbol_address(get_miyabi_cap_func_symbol(i));
 
 	if (!fix_table[i].lsm_func || !fix_table[i].cap_func) {
-	  printf("fix_table[%d]: failed to get from DB!\.");
+	  printf("fix_table[%d]: failed to get from DB!\n");
 	  return false;
 	}
 
