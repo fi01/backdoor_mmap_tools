@@ -126,6 +126,7 @@ unlock_lsm(void)
   unsigned long int bprm_set_creds_func;
   kallsyms *info;
   int count = 0;
+  int modified;
   int i;
 
   security_ops = get_fjsec_security_ops();
@@ -177,8 +178,10 @@ unlock_lsm(void)
 
   printf("  %d functions are fixed.\n", count);
 
-  count += modify_functions(info);
-  printf("  %d functions are modified.\n", count);
+  modified = modify_functions(info);
+  count += modified;
+
+  printf("  %d functions are modified.\n", modified);
 
   kallsyms_in_memory_free(info);
 
