@@ -21,6 +21,8 @@
 
 #define MAX_LSM_FIXES           32
 
+#define MAX_PATCH_DATA_SIZE     32
+
 
 typedef struct {
   unsigned long int lsm_func;
@@ -458,6 +460,59 @@ get_miyabi_cap_func_symbol(int i)
   return cap_func_symbol[i];
 }
 
+#define MIYABI_MODULE_PATCH_DATA_SYMBOL_NAME(n)  DEVICE_SYMBOL(miyabi.unlock_module.patch_data.n)
+
+static device_symbol_t
+get_miyabi_module_patch_data_symbol(int i)
+{
+  static device_symbol_t module_patch_data_symbol[] = {
+    MIYABI_MODULE_PATCH_DATA_SYMBOL_NAME(1),
+    MIYABI_MODULE_PATCH_DATA_SYMBOL_NAME(2),
+    MIYABI_MODULE_PATCH_DATA_SYMBOL_NAME(3),
+    MIYABI_MODULE_PATCH_DATA_SYMBOL_NAME(4),
+    MIYABI_MODULE_PATCH_DATA_SYMBOL_NAME(5),
+    MIYABI_MODULE_PATCH_DATA_SYMBOL_NAME(6),
+    MIYABI_MODULE_PATCH_DATA_SYMBOL_NAME(7),
+    MIYABI_MODULE_PATCH_DATA_SYMBOL_NAME(8),
+    MIYABI_MODULE_PATCH_DATA_SYMBOL_NAME(9),
+    MIYABI_MODULE_PATCH_DATA_SYMBOL_NAME(10),
+    MIYABI_MODULE_PATCH_DATA_SYMBOL_NAME(11),
+    MIYABI_MODULE_PATCH_DATA_SYMBOL_NAME(12),
+    MIYABI_MODULE_PATCH_DATA_SYMBOL_NAME(13),
+    MIYABI_MODULE_PATCH_DATA_SYMBOL_NAME(14),
+    MIYABI_MODULE_PATCH_DATA_SYMBOL_NAME(15),
+    MIYABI_MODULE_PATCH_DATA_SYMBOL_NAME(16),
+    MIYABI_MODULE_PATCH_DATA_SYMBOL_NAME(17),
+    MIYABI_MODULE_PATCH_DATA_SYMBOL_NAME(18),
+    MIYABI_MODULE_PATCH_DATA_SYMBOL_NAME(19),
+    MIYABI_MODULE_PATCH_DATA_SYMBOL_NAME(20),
+    MIYABI_MODULE_PATCH_DATA_SYMBOL_NAME(21),
+    MIYABI_MODULE_PATCH_DATA_SYMBOL_NAME(22),
+    MIYABI_MODULE_PATCH_DATA_SYMBOL_NAME(23),
+    MIYABI_MODULE_PATCH_DATA_SYMBOL_NAME(24),
+    MIYABI_MODULE_PATCH_DATA_SYMBOL_NAME(25),
+    MIYABI_MODULE_PATCH_DATA_SYMBOL_NAME(26),
+    MIYABI_MODULE_PATCH_DATA_SYMBOL_NAME(27),
+    MIYABI_MODULE_PATCH_DATA_SYMBOL_NAME(28),
+    MIYABI_MODULE_PATCH_DATA_SYMBOL_NAME(29),
+    MIYABI_MODULE_PATCH_DATA_SYMBOL_NAME(30),
+    MIYABI_MODULE_PATCH_DATA_SYMBOL_NAME(31),
+    MIYABI_MODULE_PATCH_DATA_SYMBOL_NAME(32),
+  };
+
+  if (ARRAY_SIZE(module_patch_data_symbol) != MAX_PATCH_DATA_SIZE) {
+    printf("size mismatch for MAX_PATCH_DATA_SIZE!\n");
+    return NULL;
+  }
+
+  if (i >= MAX_PATCH_DATA_SIZE) {
+    printf("Too many module_patch_data_size!\n");
+    return NULL;
+  }
+
+  return module_patch_data_symbol[i];
+}
+
 static bool
 detect_miyabi_lsm(void)
 {
@@ -570,7 +625,7 @@ setup_param_from_database(void)
 	fix_table[i].cap_func = device_get_symbol_address(get_miyabi_cap_func_symbol(i));
 
 	if (!fix_table[i].lsm_func || !fix_table[i].cap_func) {
-	  printf("fix_table[%d]: failed to get from DB!\n");
+	  printf("fix_table[%d]: failed to get from DB!\n", i);
 	  return false;
 	}
 
@@ -578,6 +633,39 @@ setup_param_from_database(void)
       }
 
       lsm_fixes = fix_table;
+
+      unlock_module_patch_address = device_get_symbol_address(DEVICE_SYMBOL(miyabi.unlock_module.patch_address));
+      unlock_module_patch_data_size = device_get_symbol_address(DEVICE_SYMBOL(miyabi.unlock_module.patch_data_size));
+
+      if (unlock_module_patch_address && unlock_module_patch_data_size) {
+        static unsigned long int patch_data[MAX_PATCH_DATA_SIZE];
+
+        printf("unlock_module_patch_address = 0x%08x\n", unlock_module_patch_address);
+        printf("unlock_module_patch_data_size = %d\n", unlock_module_patch_data_size);
+
+        for (i = 0; i < unlock_module_patch_data_size; i++) {
+	  patch_data[i] = device_get_symbol_address(get_miyabi_module_patch_data_symbol(i));
+	  if (!patch_data[i]) {
+	    printf("patch_data[%d]: failed to get from DB!\n", i);
+
+	    unlock_module_patch_address = 0;
+	    unlock_module_patch_data = NULL;
+	    unlock_module_patch_data_size = 0;
+
+	    return true;
+	  }
+
+	  printf("#%d: 0x%8x\n", i, patch_data[i]);
+	}
+
+	unlock_module_patch_data = patch_data;
+
+	return true;
+      }
+
+      unlock_module_patch_address = 0;
+      unlock_module_patch_data = NULL;
+      unlock_module_patch_data_size = 0;
 
       return true;
     }
