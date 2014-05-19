@@ -22,9 +22,6 @@
 [submodule "libput_user_exploit"]
 	path = libput_user_exploit
 	url = https://github.com/fi01/libput_user_exploit.git
-[submodule "libsqlite"]
-	path = libsqlite
-	url = https://github.com/android-rooting-tools/android_libsqlite.git
 [submodule "zlib"]
 	path = zlib
 	url = https://github.com/fi01/android_external_zlib.git
