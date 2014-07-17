@@ -39,10 +39,12 @@ typedef enum {
   MMC_PROTECT_PART_TYPE_UNKNOWN = 0,
   MMC_PROTECT_PART_TYPE1 = 1,
   MMC_PROTECT_PART_TYPE2,
+  MMC_PROTECT_PART_TYPE3,
 } mmc_protect_part_type_t;
 
 #define MMC_SYSTEM_PARTITION_TYPE1      15
 #define MMC_SYSTEM_PARTITION_TYPE2      12
+#define MMC_SYSTEM_PARTITION_TYPE3      17
 
 struct mmc_protect_inf {
   unsigned long int partition;
@@ -89,6 +91,26 @@ static const struct mmc_protect_inf check_mmc_protect_part_type2[] = {
 
 static int n_mmc_protect_part_type2 = sizeof (check_mmc_protect_part_type2) / sizeof (check_mmc_protect_part_type2[0]);
 
+static const struct mmc_protect_inf check_mmc_protect_part_type3[] = {
+  { 2,                       MMC_PROTECT_WRITE    },
+  { 3,    MMC_PROTECT_READ | MMC_PROTECT_WRITE    },
+  { 4,    MMC_PROTECT_READ | MMC_PROTECT_WRITE    },
+  { 5,    MMC_PROTECT_READ | MMC_PROTECT_WRITE    },
+  { 6,    MMC_PROTECT_READ | MMC_PROTECT_WRITE    },
+  { 7,                       MMC_PROTECT_WRITE    },
+  { 8,                       MMC_PROTECT_WRITE    },
+  { 9,                       MMC_PROTECT_WRITE    },
+  {10,                       MMC_PROTECT_WRITE    },
+  {11,                       MMC_PROTECT_WRITE    },
+  {12,    MMC_PROTECT_READ | MMC_PROTECT_WRITE    },
+  {13,    MMC_PROTECT_READ | MMC_PROTECT_WRITE    },
+  {14,                       MMC_PROTECT_WRITE    },
+  {15,    MMC_PROTECT_READ | MMC_PROTECT_WRITE    },
+  {17,                       MMC_PROTECT_WRITE    },
+};
+
+static int n_mmc_protect_part_type3 = sizeof (check_mmc_protect_part_type3) / sizeof (check_mmc_protect_part_type3[0]);
+
 static unsigned long int mmc_protect_part;
 static mmc_protect_part_type_t mmc_protect_part_type;
 
@@ -114,6 +136,12 @@ unlock_mmc_protect_part(void)
     check_mmc_protect_part = check_mmc_protect_part_type2;
     n_mmc_protect_part = n_mmc_protect_part_type2;
     mmc_system_partition = MMC_SYSTEM_PARTITION_TYPE2;
+    break;
+
+  case MMC_PROTECT_PART_TYPE3:
+    check_mmc_protect_part = check_mmc_protect_part_type3;
+    n_mmc_protect_part = n_mmc_protect_part_type3;
+    mmc_system_partition = MMC_SYSTEM_PARTITION_TYPE3;
     break;
 
   default:
@@ -169,6 +197,7 @@ detect_mmc_protect(void)
   check_t check[] = {
     { MMC_PROTECT_PART_TYPE1, check_mmc_protect_part_type1, n_mmc_protect_part_type1 },
     { MMC_PROTECT_PART_TYPE2, check_mmc_protect_part_type2, n_mmc_protect_part_type2 },
+    { MMC_PROTECT_PART_TYPE3, check_mmc_protect_part_type3, n_mmc_protect_part_type3 },
   };
 
   kallsyms *info;
@@ -236,7 +265,8 @@ setup_param_from_database(void)
 
   if (mmc_protect_part) {
     if (mmc_protect_part_type == MMC_PROTECT_PART_TYPE1
-     || mmc_protect_part_type == MMC_PROTECT_PART_TYPE2) {
+     || mmc_protect_part_type == MMC_PROTECT_PART_TYPE2
+     || mmc_protect_part_type == MMC_PROTECT_PART_TYPE3) {
       return true;
     }
   }
@@ -252,7 +282,8 @@ setup_param_from_database(void)
 
   if (mmc_protect_part) {
     if (mmc_protect_part_type == MMC_PROTECT_PART_TYPE1
-     || mmc_protect_part_type == MMC_PROTECT_PART_TYPE2) {
+     || mmc_protect_part_type == MMC_PROTECT_PART_TYPE2
+     || mmc_protect_part_type == MMC_PROTECT_PART_TYPE3) {
       return true;
     }
   }
