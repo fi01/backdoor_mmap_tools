@@ -22,6 +22,9 @@
 [submodule "libput_user_exploit"]
 	path = libput_user_exploit
 	url = https://github.com/fi01/libput_user_exploit.git
+[submodule "libfutex_exploit"]
+	path = libfutex_exploit
+	url = https://github.com/android-rooting-tools/libfutex_exploit.git
 [submodule "zlib"]
 	path = zlib
 	url = https://github.com/fi01/android_external_zlib.git

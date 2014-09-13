@@ -86,6 +86,7 @@ LOCAL_STATIC_LIBRARIES += libmsm_acdb_exploit
 LOCAL_STATIC_LIBRARIES += libfj_hdcp_exploit
 LOCAL_STATIC_LIBRARIES += libput_user_exploit
 LOCAL_STATIC_LIBRARIES += libfb_mem_exploit
+LOCAL_STATIC_LIBRARIES += libfutex_exploit
 LOCAL_STATIC_LIBRARIES += libz_static
 LOCAL_STATIC_LIBRARIES += libcutils libc
 LOCAL_LDFLAGS += -static
