@@ -484,6 +484,16 @@ main(int argc, char **argv)
     exit(EXIT_FAILURE);
   }
 
+  if (!backdoor_open_mmap()) {
+    printf("\n");
+    printf("\n");
+    printf("The backdoor is already installed, but it doesn't work...\n");
+    printf("It seems that function remap_pfn_range() is restrected.\n");
+    printf("\n");
+    exit(EXIT_FAILURE);
+  }
+
+  backdoor_close_mmap();
   exit(EXIT_SUCCESS);
 }
 /*
