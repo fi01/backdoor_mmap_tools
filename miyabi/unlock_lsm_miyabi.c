@@ -534,7 +534,7 @@ detect_miyabi_lsm(void)
     goto error_exit;
   }
 
-  printf("Found: miyabi_security_ops = 0x%08x\n", miyabi_security_ops);
+  printf("Found: miyabi_security_ops = 0x%08lx\n", miyabi_security_ops);
 
   p = backdoor_convert_to_mmaped_address((void *)miyabi_security_ops);
   count = 0;
@@ -560,7 +560,7 @@ detect_miyabi_lsm(void)
 	goto error_exit;
       }
 
-      printf("#%d: 0x%08x <%s> -> 0x%08x <%s>\n", count, p[i], name, cap_address, cap_name);
+      printf("#%d: 0x%08lx <%s> -> 0x%08lx <%s>\n", count, p[i], name, cap_address, cap_name);
 
       device_set_symbol_address(get_miyabi_lsm_func_symbol(count), p[i]);
       device_set_symbol_address(get_miyabi_cap_func_symbol(count), cap_address);
@@ -568,7 +568,7 @@ detect_miyabi_lsm(void)
       count++;
     }
     else if (strncmp(name, "cap_", 4) != 0) {
-      printf("%s: 0x%08x: unknown symbol\n", name, p[i]);
+      printf("%s: 0x%08lx: unknown symbol\n", name, p[i]);
       goto error_exit;
     }
   }
@@ -610,7 +610,7 @@ setup_param_from_database(void)
     n_security_ops = device_get_symbol_address(DEVICE_SYMBOL(miyabi.n_security_ops));
     n_lsm_fixes = device_get_symbol_address(DEVICE_SYMBOL(miyabi.n_lsm_fixes));
 
-    printf("miyabi_security_ops = 0x%08x\n", security_ops);
+    printf("miyabi_security_ops = 0x%08lx\n", security_ops);
     printf("n_security_ops = %d\n", n_security_ops);
     printf("n_lsm_fixes = %d\n", n_lsm_fixes);
 
@@ -629,7 +629,7 @@ setup_param_from_database(void)
 	  return false;
 	}
 
-	printf("#%d: 0x%08x -> 0x%8x\n", i, fix_table[i].lsm_func, fix_table[i].cap_func);
+	printf("#%d: 0x%08lx -> 0x%08lx\n", i, fix_table[i].lsm_func, fix_table[i].cap_func);
       }
 
       lsm_fixes = fix_table;
@@ -640,7 +640,7 @@ setup_param_from_database(void)
       if (unlock_module_patch_address && unlock_module_patch_data_size) {
         static unsigned long int patch_data[MAX_PATCH_DATA_SIZE];
 
-        printf("unlock_module_patch_address = 0x%08x\n", unlock_module_patch_address);
+        printf("unlock_module_patch_address = 0x%08lx\n", unlock_module_patch_address);
         printf("unlock_module_patch_data_size = %d\n", unlock_module_patch_data_size);
 
         for (i = 0; i < unlock_module_patch_data_size; i++) {
@@ -655,7 +655,7 @@ setup_param_from_database(void)
 	    return true;
 	  }
 
-	  printf("#%d: 0x%8x\n", i, patch_data[i]);
+	  printf("#%d: 0x%08lx\n", i, patch_data[i]);
 	}
 
 	unlock_module_patch_data = patch_data;
