@@ -15,11 +15,14 @@
 #include "backdoor_mmap.h"
 #include "libkallsyms/kallsyms_in_memory.h"
 
+#undef NDEBUG
+#include <assert.h>
+
 #define ARRAY_SIZE(x)           (sizeof (x) / sizeof (x[0]))
 
 #define SECURITY_OPS_OFFSET     3
 
-#define MAX_LSM_FIXES           32
+#define MAX_LSM_FIXES           256
 
 #define MAX_PATCH_DATA_SIZE     32
 
@@ -355,56 +358,24 @@ unlock_module(void)
   return true;
 }
 
-#define MIYABI_FUNC_LSM_SYMBOL_NAME(n)  DEVICE_SYMBOL(miyabi.lsm_fixes.lsm_func.n)
-#define MIYABI_FUNC_CAP_SYMBOL_NAME(n)  DEVICE_SYMBOL(miyabi.lsm_fixes.cap_func.n)
-
 static device_symbol_t
 get_miyabi_lsm_func_symbol(int i)
 {
-  static device_symbol_t lsm_func_symbol[] = {
-    MIYABI_FUNC_LSM_SYMBOL_NAME(1),
-    MIYABI_FUNC_LSM_SYMBOL_NAME(2),
-    MIYABI_FUNC_LSM_SYMBOL_NAME(3),
-    MIYABI_FUNC_LSM_SYMBOL_NAME(4),
-    MIYABI_FUNC_LSM_SYMBOL_NAME(5),
-    MIYABI_FUNC_LSM_SYMBOL_NAME(6),
-    MIYABI_FUNC_LSM_SYMBOL_NAME(7),
-    MIYABI_FUNC_LSM_SYMBOL_NAME(8),
-    MIYABI_FUNC_LSM_SYMBOL_NAME(9),
-    MIYABI_FUNC_LSM_SYMBOL_NAME(10),
-    MIYABI_FUNC_LSM_SYMBOL_NAME(11),
-    MIYABI_FUNC_LSM_SYMBOL_NAME(12),
-    MIYABI_FUNC_LSM_SYMBOL_NAME(13),
-    MIYABI_FUNC_LSM_SYMBOL_NAME(14),
-    MIYABI_FUNC_LSM_SYMBOL_NAME(15),
-    MIYABI_FUNC_LSM_SYMBOL_NAME(16),
-    MIYABI_FUNC_LSM_SYMBOL_NAME(17),
-    MIYABI_FUNC_LSM_SYMBOL_NAME(18),
-    MIYABI_FUNC_LSM_SYMBOL_NAME(19),
-    MIYABI_FUNC_LSM_SYMBOL_NAME(20),
-    MIYABI_FUNC_LSM_SYMBOL_NAME(21),
-    MIYABI_FUNC_LSM_SYMBOL_NAME(22),
-    MIYABI_FUNC_LSM_SYMBOL_NAME(23),
-    MIYABI_FUNC_LSM_SYMBOL_NAME(24),
-    MIYABI_FUNC_LSM_SYMBOL_NAME(25),
-    MIYABI_FUNC_LSM_SYMBOL_NAME(26),
-    MIYABI_FUNC_LSM_SYMBOL_NAME(27),
-    MIYABI_FUNC_LSM_SYMBOL_NAME(28),
-    MIYABI_FUNC_LSM_SYMBOL_NAME(29),
-    MIYABI_FUNC_LSM_SYMBOL_NAME(30),
-    MIYABI_FUNC_LSM_SYMBOL_NAME(31),
-    MIYABI_FUNC_LSM_SYMBOL_NAME(32),
-  };
+  static device_symbol_t lsm_func_symbol[MAX_LSM_FIXES];
 
-  if (ARRAY_SIZE(lsm_func_symbol) != MAX_LSM_FIXES) {
-    printf("size mismatch for MIYABI_FUNC_LSM_SYMBOL_NAME!\n");
-    return NULL;
-  }
-
-  if (i >= MAX_LSM_FIXES) {
+  if (i >= ARRAY_SIZE(lsm_func_symbol)) {
     printf("Too many lsm_fixes!\n");
     return NULL;
   }
+
+  assert(strcmp("miyabi.lsm_fixes.lsm_func.1", DEVICE_SYMBOL(miyabi.lsm_fixes.lsm_func.1)) == 0);
+
+  if (lsm_func_symbol[i] == NULL) {
+    char buf[256];
+
+    sprintf(buf, "miyabi.lsm_fixes.lsm_func.%d", i + 1);
+    lsm_func_symbol[i] = strdup(buf);
+  };
 
   return lsm_func_symbol[i];
 }
@@ -412,103 +383,43 @@ get_miyabi_lsm_func_symbol(int i)
 static device_symbol_t
 get_miyabi_cap_func_symbol(int i)
 {
-  static device_symbol_t cap_func_symbol[] = {
-    MIYABI_FUNC_CAP_SYMBOL_NAME(1),
-    MIYABI_FUNC_CAP_SYMBOL_NAME(2),
-    MIYABI_FUNC_CAP_SYMBOL_NAME(3),
-    MIYABI_FUNC_CAP_SYMBOL_NAME(4),
-    MIYABI_FUNC_CAP_SYMBOL_NAME(5),
-    MIYABI_FUNC_CAP_SYMBOL_NAME(6),
-    MIYABI_FUNC_CAP_SYMBOL_NAME(7),
-    MIYABI_FUNC_CAP_SYMBOL_NAME(8),
-    MIYABI_FUNC_CAP_SYMBOL_NAME(9),
-    MIYABI_FUNC_CAP_SYMBOL_NAME(10),
-    MIYABI_FUNC_CAP_SYMBOL_NAME(11),
-    MIYABI_FUNC_CAP_SYMBOL_NAME(12),
-    MIYABI_FUNC_CAP_SYMBOL_NAME(13),
-    MIYABI_FUNC_CAP_SYMBOL_NAME(14),
-    MIYABI_FUNC_CAP_SYMBOL_NAME(15),
-    MIYABI_FUNC_CAP_SYMBOL_NAME(16),
-    MIYABI_FUNC_CAP_SYMBOL_NAME(17),
-    MIYABI_FUNC_CAP_SYMBOL_NAME(18),
-    MIYABI_FUNC_CAP_SYMBOL_NAME(19),
-    MIYABI_FUNC_CAP_SYMBOL_NAME(20),
-    MIYABI_FUNC_CAP_SYMBOL_NAME(21),
-    MIYABI_FUNC_CAP_SYMBOL_NAME(22),
-    MIYABI_FUNC_CAP_SYMBOL_NAME(23),
-    MIYABI_FUNC_CAP_SYMBOL_NAME(24),
-    MIYABI_FUNC_CAP_SYMBOL_NAME(25),
-    MIYABI_FUNC_CAP_SYMBOL_NAME(26),
-    MIYABI_FUNC_CAP_SYMBOL_NAME(27),
-    MIYABI_FUNC_CAP_SYMBOL_NAME(28),
-    MIYABI_FUNC_CAP_SYMBOL_NAME(29),
-    MIYABI_FUNC_CAP_SYMBOL_NAME(30),
-    MIYABI_FUNC_CAP_SYMBOL_NAME(31),
-    MIYABI_FUNC_CAP_SYMBOL_NAME(32),
-  };
+  static device_symbol_t cap_func_symbol[MAX_LSM_FIXES];
 
-  if (ARRAY_SIZE(cap_func_symbol) != MAX_LSM_FIXES) {
-    printf("size mismatch for MIYABI_FUNC_LSM_SYMBOL_NAME!\n");
-    return NULL;
-  }
-
-  if (i >= MAX_LSM_FIXES) {
+  if (i >= ARRAY_SIZE(cap_func_symbol)) {
     printf("Too many lsm_fixes!\n");
     return NULL;
   }
 
+  assert(strcmp("miyabi.lsm_fixes.cap_func.1", DEVICE_SYMBOL(miyabi.lsm_fixes.cap_func.1)) == 0);
+
+  if (cap_func_symbol[i] == NULL) {
+    char buf[256];
+
+    sprintf(buf, "miyabi.lsm_fixes.cap_func.%d", i + 1);
+    cap_func_symbol[i] = strdup(buf);
+  };
+
   return cap_func_symbol[i];
 }
-
-#define MIYABI_MODULE_PATCH_DATA_SYMBOL_NAME(n)  DEVICE_SYMBOL(miyabi.unlock_module.patch_data.n)
 
 static device_symbol_t
 get_miyabi_module_patch_data_symbol(int i)
 {
-  static device_symbol_t module_patch_data_symbol[] = {
-    MIYABI_MODULE_PATCH_DATA_SYMBOL_NAME(1),
-    MIYABI_MODULE_PATCH_DATA_SYMBOL_NAME(2),
-    MIYABI_MODULE_PATCH_DATA_SYMBOL_NAME(3),
-    MIYABI_MODULE_PATCH_DATA_SYMBOL_NAME(4),
-    MIYABI_MODULE_PATCH_DATA_SYMBOL_NAME(5),
-    MIYABI_MODULE_PATCH_DATA_SYMBOL_NAME(6),
-    MIYABI_MODULE_PATCH_DATA_SYMBOL_NAME(7),
-    MIYABI_MODULE_PATCH_DATA_SYMBOL_NAME(8),
-    MIYABI_MODULE_PATCH_DATA_SYMBOL_NAME(9),
-    MIYABI_MODULE_PATCH_DATA_SYMBOL_NAME(10),
-    MIYABI_MODULE_PATCH_DATA_SYMBOL_NAME(11),
-    MIYABI_MODULE_PATCH_DATA_SYMBOL_NAME(12),
-    MIYABI_MODULE_PATCH_DATA_SYMBOL_NAME(13),
-    MIYABI_MODULE_PATCH_DATA_SYMBOL_NAME(14),
-    MIYABI_MODULE_PATCH_DATA_SYMBOL_NAME(15),
-    MIYABI_MODULE_PATCH_DATA_SYMBOL_NAME(16),
-    MIYABI_MODULE_PATCH_DATA_SYMBOL_NAME(17),
-    MIYABI_MODULE_PATCH_DATA_SYMBOL_NAME(18),
-    MIYABI_MODULE_PATCH_DATA_SYMBOL_NAME(19),
-    MIYABI_MODULE_PATCH_DATA_SYMBOL_NAME(20),
-    MIYABI_MODULE_PATCH_DATA_SYMBOL_NAME(21),
-    MIYABI_MODULE_PATCH_DATA_SYMBOL_NAME(22),
-    MIYABI_MODULE_PATCH_DATA_SYMBOL_NAME(23),
-    MIYABI_MODULE_PATCH_DATA_SYMBOL_NAME(24),
-    MIYABI_MODULE_PATCH_DATA_SYMBOL_NAME(25),
-    MIYABI_MODULE_PATCH_DATA_SYMBOL_NAME(26),
-    MIYABI_MODULE_PATCH_DATA_SYMBOL_NAME(27),
-    MIYABI_MODULE_PATCH_DATA_SYMBOL_NAME(28),
-    MIYABI_MODULE_PATCH_DATA_SYMBOL_NAME(29),
-    MIYABI_MODULE_PATCH_DATA_SYMBOL_NAME(30),
-    MIYABI_MODULE_PATCH_DATA_SYMBOL_NAME(31),
-    MIYABI_MODULE_PATCH_DATA_SYMBOL_NAME(32),
-  };
+  static device_symbol_t module_patch_data_symbol[MAX_PATCH_DATA_SIZE];
 
-  if (ARRAY_SIZE(module_patch_data_symbol) != MAX_PATCH_DATA_SIZE) {
-    printf("size mismatch for MAX_PATCH_DATA_SIZE!\n");
-    return NULL;
-  }
-
-  if (i >= MAX_PATCH_DATA_SIZE) {
+  if (i >= ARRAY_SIZE(module_patch_data_symbol)) {
     printf("Too many module_patch_data_size!\n");
     return NULL;
   }
+
+  assert(strcmp("miyabi.unlock_module.patch_data.1", DEVICE_SYMBOL(miyabi.unlock_module.patch_data.1)) == 0);
+
+  if (module_patch_data_symbol[i] == NULL) {
+    char buf[256];
+
+    sprintf(buf, "miyabi.unlock_module.patch_data.%d", i + 1);
+    module_patch_data_symbol[i] = strdup(buf);
+  };
 
   return module_patch_data_symbol[i];
 }
@@ -519,6 +430,7 @@ detect_miyabi_lsm(void)
   kallsyms *info;
   unsigned long int miyabi_security_ops;
   unsigned long int *p;
+  bool is_selinux = false;
   bool ret = false;
   int count;
   int i;
@@ -530,30 +442,71 @@ detect_miyabi_lsm(void)
   }
 
   miyabi_security_ops = kallsyms_in_memory_lookup_name(info, "miyabi_security_ops");
-  if (!miyabi_security_ops) {
-    goto error_exit;
+  if (miyabi_security_ops) {
+    printf("Found: security_ops(miyabi_security_ops) = 0x%08lx\n", miyabi_security_ops);
   }
+  else {
+    miyabi_security_ops = kallsyms_in_memory_lookup_name(info, "selinux_ops");
+    if (!miyabi_security_ops) {
+      goto error_exit;
+    }
 
-  printf("Found: miyabi_security_ops = 0x%08lx\n", miyabi_security_ops);
+    printf("Found: security_ops(selinux_ops) = 0x%08lx\n", miyabi_security_ops);
+
+    is_selinux = true;
+  }
 
   p = backdoor_convert_to_mmaped_address((void *)miyabi_security_ops);
   count = 0;
 
   for (i = SECURITY_OPS_OFFSET; p[i]; i++) {
-    const char *name = kallsyms_in_memory_lookup_address(info, p[i]);
+    const char *name;
+    int prefix_len;
+    bool is_selinux_symbol;
+
+    name = kallsyms_in_memory_lookup_address(info, p[i]);
     if (!name) {
       break;
     }
 
+    is_selinux_symbol = false;
+    prefix_len = 0;
+
     if (strncmp(name, "miyabi_", 7) == 0) {
+      prefix_len = 7;
+    }
+    else if (is_selinux && strncmp(name, "selinux_", 8) == 0) {
+      is_selinux_symbol = true;
+      prefix_len = 8;
+    }
+
+    if (prefix_len) {
       unsigned long int cap_address;
       char cap_name[256];
 
-      if (snprintf(cap_name, sizeof (cap_name) - 1, "cap_%s", name + 7) >= sizeof (cap_name)) {
+      if (snprintf(cap_name, sizeof (cap_name) - 1, "cap_%s", name + prefix_len) >= sizeof (cap_name)) {
         printf("Buffer is too short for %s\n", name);
 	goto error_exit;
       }
       cap_address = kallsyms_in_memory_lookup_name(info, cap_name);
+
+      if (!cap_address && is_selinux_symbol) {
+        if (snprintf(cap_name, sizeof (cap_name) - 1, "cap_sb_%s", name + prefix_len) >= sizeof (cap_name)) {
+          printf("Buffer is too short for %s\n", name);
+	  goto error_exit;
+        }
+        cap_address = kallsyms_in_memory_lookup_name(info, cap_name);
+      }
+
+      if (!cap_address && is_selinux_symbol && strncmp(name, "selinux_socket_", 15) == 0) {
+        prefix_len = 15;
+
+        if (snprintf(cap_name, sizeof (cap_name) - 1, "cap_%s", name + prefix_len) >= sizeof (cap_name)) {
+          printf("Buffer is too short for %s\n", name);
+	  goto error_exit;
+        }
+        cap_address = kallsyms_in_memory_lookup_name(info, cap_name);
+      }
 
       if (!cap_address) {
         printf("%s: not found for fix %s\n", cap_name, name);
