@@ -87,13 +87,16 @@ LOCAL_STATIC_LIBRARIES += libfj_hdcp_exploit
 LOCAL_STATIC_LIBRARIES += libput_user_exploit
 LOCAL_STATIC_LIBRARIES += libfb_mem_exploit
 LOCAL_STATIC_LIBRARIES += libfutex_exploit
+LOCAL_STATIC_LIBRARIES += libpingpong_exploit
+LOCAL_STATIC_LIBRARIES += libexploit_utils
 LOCAL_STATIC_LIBRARIES += libz_static
 LOCAL_STATIC_LIBRARIES += libcutils libc
 LOCAL_LDFLAGS += -static
 
 TOP_SRCDIR := $(abspath $(LOCAL_PATH))
 TARGET_C_INCLUDES += \
-  $(TOP_SRCDIR)/device_database
+  $(TOP_SRCDIR)/device_database \
+  $(TOP_SRCDIR)/libexploit_utils
 
 include $(BUILD_EXECUTABLE)
 
