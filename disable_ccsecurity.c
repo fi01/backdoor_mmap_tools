@@ -120,7 +120,7 @@ disable_ccsecurity(void)
     }
 
     if (i == MAX_CCS_SEARCH_BINARY_HANDLERS) {
-      printf("check failed: ccsecurity_ops[%d] = %%p\n", BINARY_HANDLER_POS, p[BINARY_HANDLER_POS]);
+      printf("check failed: ccsecurity_ops[%d] = %p\n", BINARY_HANDLER_POS, p[BINARY_HANDLER_POS]);
       return false;
     }
   }
