@@ -96,7 +96,8 @@ LOCAL_LDFLAGS += -static
 TOP_SRCDIR := $(abspath $(LOCAL_PATH))
 TARGET_C_INCLUDES += \
   $(TOP_SRCDIR)/device_database \
-  $(TOP_SRCDIR)/libexploit_utils
+  $(TOP_SRCDIR)/libexploit_utils \
+  $(TOP_SRCDIR)
 
 include $(BUILD_EXECUTABLE)
 

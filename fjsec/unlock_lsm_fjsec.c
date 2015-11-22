@@ -167,7 +167,7 @@ unlock_lsm(void)
         continue;
       }
 
-      printf("0x%08x = 0x%08x <%s>\n", backdoor_convert_to_kernel_address(&security_ops[i]), security_ops[i], name);
+      printf("0x%08lx = 0x%08lx <%s>\n", (unsigned long int)backdoor_convert_to_kernel_address(&security_ops[i]), security_ops[i], name);
 
       if (strncmp(name, RESTRICTED_CAP_PREFIX, sizeof (RESTRICTED_CAP_PREFIX) - 1) == 0) {
       	security_ops[i] = (unsigned long int)fix_func;

@@ -70,7 +70,7 @@ find_kernel_text_from_config(void)
       if (!*p) {
 	kernel_ram += 0x00008000;
 
-	printf("Detected kernel physical address at 0x%08x form config\n", kernel_ram);
+	printf("Detected kernel physical address at 0x%08lx form config\n", kernel_ram);
 
 	gzclose(f);
 

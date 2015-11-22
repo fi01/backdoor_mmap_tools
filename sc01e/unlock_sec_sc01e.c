@@ -77,9 +77,9 @@ check_unlock_code(void)
     if (memcmp(p, check_code[pos].expected, check_code[pos].size) != 0) {
       int i;
 
-      printf("kernel code doesn't match at 0x%08x !!\n", check_code[pos].addr);
+      printf("kernel code doesn't match at 0x%08lx !!\n", check_code[pos].addr);
       for (i = 0; i < check_code[pos].size / sizeof (check_code[pos].expected[0]); i++) {
-        printf("  0x%08x\n", p[i]);
+        printf("  0x%08lx\n", p[i]);
       }
 
       printf("\n");

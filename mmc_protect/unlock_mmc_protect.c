@@ -217,7 +217,7 @@ detect_mmc_protect(void)
     goto error_exit;
   }
 
-  printf("Found: mmc_protect_part = 0x%08x\n", addr);
+  printf("Found: mmc_protect_part = 0x%08lx\n", addr);
 
   p = backdoor_convert_to_mmaped_address((void *)addr);
 
@@ -242,7 +242,7 @@ detect_mmc_protect(void)
       printf("Detect partition type: %d\n", check[i].type);
 
       for (n = 0; n < check[i].num; n++) {
-        printf("#%d: partiton %2d: protect %d\n", n, p[n].partition, p[n].protect);
+        printf("#%d: partiton %2ld: protect %ld\n", n, p[n].partition, p[n].protect);
       }
 
       device_set_symbol_address(DEVICE_SYMBOL(mmc_protect_part), addr);
